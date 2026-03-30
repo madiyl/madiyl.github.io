@@ -16,14 +16,14 @@ html{height:100%;overflow:hidden;}
 body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
   height:100dvh;height:100vh;width:100vw;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
-#hScroller{display:flex;height:100dvh;height:100vh;width:100vw;overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
-  overscroll-behavior-x:contain;overscroll-behavior-y:none;}
-#hScroller{scrollbar-width:none;}
-#hScroller::-webkit-scrollbar{display:none;}
+#vScroller{display:block;height:100dvh;height:100vh;width:100vw;overflow-y:auto;overflow-x:hidden;
+  scroll-snap-type:y mandatory;scroll-snap-stop:always;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;touch-action:pan-y;}
+#vScroller{scrollbar-width:none;}
+#vScroller::-webkit-scrollbar{display:none;}
 
 /* === Each Page === */
-.page{width:100vw;height:100vh;flex-shrink:0;scroll-snap-align:start;
+.page{width:100vw;height:100dvh;height:100vh;flex-shrink:0;scroll-snap-align:start;
   display:grid;grid-template-columns:45% 55%;overflow:hidden;position:relative;}
 
 /* --- Left: Image Panel --- */
@@ -35,13 +35,29 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
   background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.55) 100%);}
 .img-bottom{position:absolute;bottom:0;left:0;right:0;padding:40px;color:#fff;z-index:2;}
 .img-bottom .flower-emoji{font-size:48px;margin-bottom:8px;display:block;
-  filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));}
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));
+  opacity:0;transform:translateY(14px) scale(.92);will-change:transform,opacity;}
 .img-bottom h1{font-family:'Noto Serif SC',serif;font-size:clamp(36px,5vw,56px);
   font-weight:700;line-height:1.15;margin-bottom:4px;text-shadow:0 2px 12px rgba(0,0,0,.3);}
 .img-bottom .latin{font-size:16px;opacity:.75;font-style:italic;font-weight:300;}
 .img-bottom .flower-lang{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
 .img-bottom .flower-lang span{background:rgba(255,255,255,.18);backdrop-filter:blur(6px);
   padding:5px 14px;border-radius:20px;font-size:13px;font-weight:400;}
+
+.img-bottom h1,.img-bottom .latin,.img-bottom .flower-lang span{
+  opacity:0;transform:translateY(14px);will-change:transform,opacity;
+  transition:opacity .55s cubic-bezier(.2,.8,.2,1),transform .55s cubic-bezier(.2,.8,.2,1);
+}
+.page.active .img-bottom h1{opacity:1;transform:none;transition-delay:.06s;}
+.page.active .img-bottom .latin{opacity:.75;transform:none;transition-delay:.12s;}
+.page.active .img-bottom .flower-lang span{opacity:1;transform:none;transition-delay:.18s;}
+.page.active .img-bottom .flower-emoji{opacity:1;transform:translateY(0) scale(1);animation:flowerPop .62s cubic-bezier(.2,.9,.2,1) .02s both;}
+
+@keyframes flowerPop{
+  0%{opacity:0;transform:translateY(14px) scale(.92)}
+  65%{opacity:1;transform:translateY(0) scale(1.06)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
 
 /* --- Right: Content Panel --- */
 .page-content{background:var(--bg);overflow-y:auto;padding:48px 48px 48px 40px;
@@ -142,7 +158,7 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
 .kb-hint kbd{background:rgba(255,255,255,.2);padding:2px 6px;border-radius:4px;font-family:inherit;}
 
 /* Hero Page Special */
-.page-hero{width:100vw;height:100vh;flex-shrink:0;scroll-snap-align:start;
+.page-hero{width:100vw;height:100dvh;height:100vh;flex-shrink:0;scroll-snap-align:start;
   display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
   background:linear-gradient(135deg,#FFE8E0 0%,#FFD4E8 30%,#E8D4FF 60%,#D4E8FF 100%);
   position:relative;overflow:hidden;}
@@ -163,8 +179,8 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
 .hero-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.7);
   backdrop-filter:blur(8px);padding:10px 18px;border-radius:12px;font-size:14px;color:var(--sub);}
 .hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
-  color:var(--sub);font-size:13px;display:flex;align-items:center;gap:8px;animation:hbounce 2s infinite;}
-@keyframes hbounce{0%,100%{transform:translateX(-50%) translateX(0)}50%{transform:translateX(-50%) translateX(8px)}}
+  color:var(--sub);font-size:13px;display:flex;align-items:center;gap:8px;animation:vbounce 2s infinite;}
+@keyframes vbounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
 .hero-scroll .arr{display:inline-block;font-size:18px;}
 
 /* Weather Row inside hero */
@@ -195,7 +211,7 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
 </head>
 <body>
 
-<div id="hScroller">
+<div id="vScroller">
 
 <!-- PAGE 0: Hero -->
 <section class="page-hero" data-name="首页">
@@ -216,7 +232,7 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
       <div class="weather-box"><div class="wb-icon">🧴</div><div class="wb-val">需防晒</div><div class="wb-label">紫外线偏强</div></div>
     </div>
   </div>
-  <div class="hero-scroll"><span>左右滑动探索花事</span><span class="arr">&rarr;</span></div>
+  <div class="hero-scroll"><span>上下滑动探索花事</span><span class="arr">&darr;</span></div>
 </section>
 
 <!-- PAGE 1: 玉兰花 -->
@@ -962,7 +978,7 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
 </div>
 
 <!-- Keyboard Hint -->
-<div class="kb-hint"><kbd>&larr;</kbd><kbd>&rarr;</kbd> 翻页 &nbsp; <kbd>Home</kbd> 回首页</div>
+<div class="kb-hint"><kbd>&uarr;</kbd><kbd>&darr;</kbd> 翻页 &nbsp; <kbd>Home</kbd> 回首页</div>
 
 <script>
 (function(){
@@ -979,17 +995,17 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
   }
 })();
 
-const scroller=document.getElementById('hScroller');
+const scroller=document.getElementById('vScroller');
 const allPages=[scroller.querySelector('.page-hero'),...scroller.querySelectorAll('.page')];
 const sideNav=document.getElementById('sideNav');
 const counter=document.getElementById('pageCounter');
 const pageName=document.getElementById('pageName');
 
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
-const pageWidth=()=>scroller.clientWidth||window.innerWidth;
+const pageHeight=()=>scroller.clientHeight||window.innerHeight;
 const scrollToPage=(idx,behavior='smooth')=>{
   const i=clamp(idx,0,allPages.length-1);
-  scroller.scrollTo({left:i*pageWidth(),behavior});
+  scroller.scrollTo({top:i*pageHeight(),behavior});
 };
 
 allPages.forEach((p,i)=>{
@@ -1021,53 +1037,67 @@ const obs=new IntersectionObserver(entries=>{
 },{root:scroller,threshold:.5});
 allPages.forEach(p=>obs.observe(p));
 
-let t0x=0,t0y=0,t0l=0,t0t=0,drag=false,lock=null;
+let t0x=0,t0y=0,t0s=0,t0t=0,drag=false,lock=null,startContent=null;
 scroller.addEventListener('touchstart',e=>{
   const t=e.touches[0];
   t0x=t.clientX;t0y=t.clientY;
-  t0l=scroller.scrollLeft;
+  t0s=scroller.scrollTop;
   t0t=performance.now();
   drag=false;lock=null;
+  startContent=e.target.closest?.('.page-content')||null;
 },{passive:true});
 
 scroller.addEventListener('touchmove',e=>{
   const t=e.touches[0];
   const dx=t.clientX-t0x;
-  const dy=t.clientY-t0y;
+  let dy=t.clientY-t0y;
 
   if(lock===null){
     if(Math.abs(dx)>12||Math.abs(dy)>12){
-      lock=Math.abs(dx)>(Math.abs(dy)*1.2)?'x':'y';
+      lock=Math.abs(dy)>(Math.abs(dx)*1.2)?'y':'x';
     }else{
       return;
     }
   }
 
-  if(lock==='x'){
-    drag=true;
-    e.preventDefault();
-    scroller.scrollLeft=t0l-dx;
+  if(lock!=='y') return;
+
+  if(startContent && startContent.scrollHeight>startContent.clientHeight+1){
+    const atTop=startContent.scrollTop<=0;
+    const atBottom=startContent.scrollTop+startContent.clientHeight>=startContent.scrollHeight-1;
+    const wantsPageSwipe=(dy>0&&atTop)||(dy<0&&atBottom);
+    if(!wantsPageSwipe) return;
+    if(!drag){
+      t0y=t.clientY;
+      t0s=scroller.scrollTop;
+      t0t=performance.now();
+      dy=0;
+    }
   }
+
+  drag=true;
+  e.preventDefault();
+  scroller.scrollTop=t0s-dy;
 },{passive:false});
 
 scroller.addEventListener('touchend',()=>{
   if(!drag) return;
-  const dx=scroller.scrollLeft-t0l;
+  const ds=scroller.scrollTop-t0s;
   const dt=Math.max(1,performance.now()-t0t);
-  const v=Math.abs(dx/dt);
-  const w=pageWidth();
-  const base=Math.round(t0l/w);
-  let next=Math.round(scroller.scrollLeft/w);
+  const v=Math.abs(ds/dt);
+  const h=pageHeight();
+  const base=Math.round(t0s/h);
+  let next=Math.round(scroller.scrollTop/h);
   if(v>0.35){
-    next=dx>0?base+1:base-1;
+    next=ds>0?base+1:base-1;
   }
   scrollToPage(next,'smooth');
 });
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight'&&currentPage<allPages.length-1){
+  if(e.key==='ArrowDown'&&currentPage<allPages.length-1){
     scrollToPage(currentPage+1,'smooth');
-  }else if(e.key==='ArrowLeft'&&currentPage>0){
+  }else if(e.key==='ArrowUp'&&currentPage>0){
     scrollToPage(currentPage-1,'smooth');
   }else if(e.key==='Home'){
     scrollToPage(0,'smooth');
