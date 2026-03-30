@@ -1,157 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madiyl 的工具箱</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="一个极简高级的生活攻略与工具入口。" />
+    <meta property="og:title" content="Life & Tools Hub" />
+    <meta property="og:description" content="一个极简高级的生活攻略与工具入口。" />
+    <meta property="og:type" content="website" />
+    <title>Life & Tools Hub</title>
+    <script>
+      (() => {
+        try {
+          const t = localStorage.getItem('theme');
+          const m = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (t === 'dark' || (!t && m)) document.documentElement.classList.add('dark');
+        } catch {
         }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        
-        h1 {
-            color: white;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .subtitle {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.1em;
-        }
-        
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .tool-card {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-        }
-        
-        .tool-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-        }
-        
-        .tool-name {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .tool-desc {
-            color: #666;
-            font-size: 0.95em;
-            line-height: 1.5;
-        }
-        
-        .coming-soon {
-            opacity: 0.6;
-            cursor: default;
-        }
-        
-        .coming-soon:hover {
-            transform: none;
-        }
-        
-        .badge {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            font-size: 0.75em;
-            padding: 3px 8px;
-            border-radius: 10px;
-            margin-left: 8px;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 50px;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9em;
-        }
-        
-        footer a {
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🧰 Madiyl 的工具箱</h1>
-            <p class="subtitle">一些实用的小工具，持续更新中...</p>
-        </header>
-        
-        <div class="tools-grid">
-            <a href="./tools/weekend-flowers.html" class="tool-card">
-                <div class="tool-icon">🌸</div>
-                <div class="tool-name">周末赏花 <span class="badge">NEW</span></div>
-                <div class="tool-desc">北京春季赏花攻略，樱花、玉兰、桃花...一键查询</div>
-            </a>
-
-            <a href="./tools/color-picker.html" class="tool-card">
-                <div class="tool-icon">🎨</div>
-                <div class="tool-name">颜色选择器</div>
-                <div class="tool-desc">快速选取颜色，获取 HEX、RGB 格式，支持随机配色</div>
-            </a>
-            
-            <a href="./tools/json-format.html" class="tool-card coming-soon">
-                <div class="tool-icon">📋</div>
-                <div class="tool-name">JSON 格式化</div>
-                <div class="tool-desc">美化 JSON 数据，一键格式化压缩（即将上线）</div>
-            </a>
-            
-            <a href="./tools/timer.html" class="tool-card coming-soon">
-                <div class="tool-icon">⏱️</div>
-                <div class="tool-name">计时器</div>
-                <div class="tool-desc">倒计时、秒表、番茄钟（即将上线）</div>
-            </a>
-            
-            <a href="./tools/qrcode.html" class="tool-card coming-soon">
-                <div class="tool-icon">📱</div>
-                <div class="tool-name">二维码生成</div>
-                <div class="tool-desc">输入文字或链接，生成二维码图片（即将上线）</div>
-            </a>
-        </div>
-        
-        <footer>
-            <p>Made with ❤️ by <a href="https://github.com/madiyl" target="_blank">Madiyl</a></p>
-        </footer>
-    </div>
-</body>
+      })();
+    </script>
+    <script type="module">
+      if (import.meta.hot?.on) {
+        import.meta.hot.on('vite:error', (error) => {
+          if (error.err) {
+            console.error(
+              [error.err.message, error.err.frame].filter(Boolean).join('\n'),
+            )
+          }
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
