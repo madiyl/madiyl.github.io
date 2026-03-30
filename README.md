@@ -22,7 +22,7 @@ pnpm run preview
 
 1. GitHub 仓库设置 → `Settings` → `Pages`
 2. `Build and deployment` 选择 `GitHub Actions`
-3. 推送到 `main` 分支后会自动构建并发布（产物来自 `dist/`）
+3. 推送到 `master`（或 `main`）分支后会自动构建并发布（产物来自 `dist/`）
 
 `vite.config.ts` 会根据仓库类型自动选择正确的 `base`：
 - `xxx.github.io`（User/Org Pages）：`/`
