@@ -12,9 +12,15 @@
   --radius:16px;--shadow:0 2px 20px rgba(0,0,0,.06);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;scroll-snap-type:x mandatory;overflow-y:hidden;overflow-x:auto;height:100%;}
+html{height:100%;overflow:hidden;}
 body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
-  display:flex;height:100vh;width:max-content;-webkit-font-smoothing:antialiased;}
+  height:100dvh;height:100vh;width:100vw;overflow:hidden;-webkit-font-smoothing:antialiased;}
+
+#hScroller{display:flex;height:100dvh;height:100vh;width:100vw;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;overscroll-behavior-y:none;}
+#hScroller{scrollbar-width:none;}
+#hScroller::-webkit-scrollbar{display:none;}
 
 /* === Each Page === */
 .page{width:100vw;height:100vh;flex-shrink:0;scroll-snap-align:start;
@@ -43,6 +49,7 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
   scrollbar-color:#ddd transparent;}
 .page-content::-webkit-scrollbar{width:5px;}
 .page-content::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px;}
+.page-content{-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
 
 /* Status Badge */
 .status-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
@@ -187,6 +194,8 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
 </style>
 </head>
 <body>
+
+<div id="hScroller">
 
 <!-- PAGE 0: Hero -->
 <section class="page-hero" data-name="首页">
@@ -939,6 +948,8 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
   </div>
 </section>
 
+</div>
+
 <!-- Side Navigation -->
 <nav class="side-nav" id="sideNav"></nav>
 
@@ -968,18 +979,25 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;color:var(--text);
   }
 })();
 
-const html=document.documentElement;
-const allPages=[document.querySelector('.page-hero'),...document.querySelectorAll('.page')];
+const scroller=document.getElementById('hScroller');
+const allPages=[scroller.querySelector('.page-hero'),...scroller.querySelectorAll('.page')];
 const sideNav=document.getElementById('sideNav');
 const counter=document.getElementById('pageCounter');
 const pageName=document.getElementById('pageName');
+
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+const pageWidth=()=>scroller.clientWidth||window.innerWidth;
+const scrollToPage=(idx,behavior='smooth')=>{
+  const i=clamp(idx,0,allPages.length-1);
+  scroller.scrollTo({left:i*pageWidth(),behavior});
+};
 
 allPages.forEach((p,i)=>{
   const wrap=document.createElement('div');wrap.className='side-dot-wrap';
   const dot=document.createElement('button');dot.className='side-dot'+(i===0?' active':'');
   const label=document.createElement('span');label.className='side-label';
   label.textContent=p.dataset.name||'首页';
-  dot.onclick=()=>{ allPages[i].scrollIntoView({behavior:'smooth',inline:'start'}); };
+  dot.onclick=()=>{ scrollToPage(i,'smooth'); };
   wrap.appendChild(label);wrap.appendChild(dot);sideNav.appendChild(wrap);
 });
 
@@ -1000,17 +1018,64 @@ const obs=new IntersectionObserver(entries=>{
       }
     }
   });
-},{root:null,threshold:.5});
+},{root:scroller,threshold:.5});
 allPages.forEach(p=>obs.observe(p));
+
+let t0x=0,t0y=0,t0l=0,t0t=0,drag=false,lock=null;
+scroller.addEventListener('touchstart',e=>{
+  const t=e.touches[0];
+  t0x=t.clientX;t0y=t.clientY;
+  t0l=scroller.scrollLeft;
+  t0t=performance.now();
+  drag=false;lock=null;
+},{passive:true});
+
+scroller.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  const dx=t.clientX-t0x;
+  const dy=t.clientY-t0y;
+
+  if(lock===null){
+    if(Math.abs(dx)>12||Math.abs(dy)>12){
+      lock=Math.abs(dx)>(Math.abs(dy)*1.2)?'x':'y';
+    }else{
+      return;
+    }
+  }
+
+  if(lock==='x'){
+    drag=true;
+    e.preventDefault();
+    scroller.scrollLeft=t0l-dx;
+  }
+},{passive:false});
+
+scroller.addEventListener('touchend',()=>{
+  if(!drag) return;
+  const dx=scroller.scrollLeft-t0l;
+  const dt=Math.max(1,performance.now()-t0t);
+  const v=Math.abs(dx/dt);
+  const w=pageWidth();
+  const base=Math.round(t0l/w);
+  let next=Math.round(scroller.scrollLeft/w);
+  if(v>0.35){
+    next=dx>0?base+1:base-1;
+  }
+  scrollToPage(next,'smooth');
+});
 
 document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'&&currentPage<allPages.length-1){
-    allPages[currentPage+1].scrollIntoView({behavior:'smooth',inline:'start'});
+    scrollToPage(currentPage+1,'smooth');
   }else if(e.key==='ArrowLeft'&&currentPage>0){
-    allPages[currentPage-1].scrollIntoView({behavior:'smooth',inline:'start'});
+    scrollToPage(currentPage-1,'smooth');
   }else if(e.key==='Home'){
-    allPages[0].scrollIntoView({behavior:'smooth',inline:'start'});
+    scrollToPage(0,'smooth');
   }
+});
+
+window.addEventListener('resize',()=>{
+  scrollToPage(currentPage,'auto');
 });
 </script>
 </body>
