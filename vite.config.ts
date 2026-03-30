@@ -5,7 +5,12 @@ import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: (() => {
+    const repo = process.env.GITHUB_REPOSITORY?.split('/')[1];
+    if (!repo) return './';
+    const isUserOrOrgSite = repo.endsWith('.github.io');
+    return isUserOrOrgSite ? '/' : `/${repo}/`;
+  })(),
   build: {
     sourcemap: 'hidden',
   },
