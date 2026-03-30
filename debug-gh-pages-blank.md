@@ -16,6 +16,7 @@ Status: [OPEN]
 
 ## Current Evidence
 - 线上 HTML 包含 `<script type="module" src="/src/main.tsx"></script>` → 强指向 Hypothesis 1/2。
+- GitHub Actions 部署失败提示 `Unable to locate executable file: pnpm`。
 
 ## Instrumentation Plan
 - 在 `index.html` 中加入 `%VITE_BUILD_SHA%` 标识与 fallback 提示，用于快速判断“源码托管 vs dist 托管”。
@@ -24,3 +25,4 @@ Status: [OPEN]
 ## Next Checks
 - 再次抓取线上 HTML：是否仍引用 `/src/main.tsx` 或变为 `/assets/index-*.js`。
 - 访问 `https://madiyl.github.io/` 源码中 `%VITE_BUILD_SHA%` 是否被替换为 commit SHA。
+- Actions 重新运行后确认不再出现 `pnpm` 找不到，且 `Upload artifact`/`Deploy` 成功。
