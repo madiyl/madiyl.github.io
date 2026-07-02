@@ -1,11 +1,15 @@
+import { useState } from "react";
 import "./App.css";
 import { EditDrawer } from "@/components/editor/EditDrawer";
+import { ExitEditConfirmDialog } from "@/components/editor/ExitEditConfirmDialog";
 import { useEditMode } from "@/hooks/useEditMode";
 import { useRenovationData } from "@/hooks/useRenovationData";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { RenovationJourneyPage } from "@/pages/RenovationJourneyPage";
 
 function App() {
+  const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+  const [isExitSaving, setIsExitSaving] = useState(false);
   const {
     data,
     isLoading,
@@ -29,6 +33,39 @@ function App() {
     authenticate,
     lock,
   } = useEditMode();
+
+  const handleExitEditRequest = () => {
+    if (!isDirty) {
+      lock();
+      return;
+    }
+
+    setExitConfirmOpen(true);
+  };
+
+  const handleSaveAndExit = async () => {
+    setIsExitSaving(true);
+
+    try {
+      await save(password);
+      setExitConfirmOpen(false);
+      lock();
+    } catch {
+      setExitConfirmOpen(false);
+    } finally {
+      setIsExitSaving(false);
+    }
+  };
+
+  const handleDiscardAndExit = () => {
+    resetChanges();
+    setExitConfirmOpen(false);
+    lock();
+  };
+
+  const handleContinueEditing = () => {
+    setExitConfirmOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -66,7 +103,15 @@ function App() {
         onAuthenticate={authenticate}
         onSave={() => save(password)}
         onReset={resetChanges}
-        onLock={lock}
+        onLock={handleExitEditRequest}
+      />
+
+      <ExitEditConfirmDialog
+        open={exitConfirmOpen}
+        isSaving={isExitSaving}
+        onSaveAndExit={() => void handleSaveAndExit()}
+        onDiscardAndExit={handleDiscardAndExit}
+        onContinueEditing={handleContinueEditing}
       />
     </>
   );

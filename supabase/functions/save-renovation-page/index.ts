@@ -60,11 +60,16 @@ Deno.serve(async (request) => {
 
     const { error } = await client
       .from("renovation_pages")
-      .upsert({
-        slug,
-        content_json: content,
-        updated_at: updatedAt,
-      });
+      .upsert(
+        {
+          slug,
+          content_json: content,
+          updated_at: updatedAt,
+        },
+        {
+          onConflict: "slug",
+        },
+      );
 
     if (error) {
       return jsonResponse(

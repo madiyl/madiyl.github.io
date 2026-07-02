@@ -8,8 +8,16 @@ export type MaterialCategory =
   | "木地板"
   | "石材"
   | "灯光"
-  | "窗帘"
   | "其它";
+
+export type TileQuoteItem = {
+  id: string;
+  label: string;
+  selection: string;
+  price: number;
+};
+
+export type MaterialQuoteRole = "selected" | "comparison";
 
 export type ApplianceCategory =
   | "电视"
@@ -61,11 +69,17 @@ export type DesignAsset = {
 export type MaterialItem = {
   id: string;
   category: MaterialCategory;
+  quoteRole?: MaterialQuoteRole;
   vendor: string;
   selection: string;
   budget: number;
   actualPrice: number;
   note: string;
+  pdfUrl: string;
+  excelUrl?: string;
+  tileQuotes?: TileQuoteItem[];
+  tileTotalPrice?: number;
+  tileImagePath?: string;
 };
 
 export type ApplianceItem = {
@@ -94,7 +108,9 @@ export type SoftFurnishingItem = {
   category: SoftCategory;
   name: string;
   brand: string;
-  price: number;
+  budget: number;
+  actualPrice: number;
+  price?: number;
   reason: string;
   status: string;
   imagePath: string;

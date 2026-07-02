@@ -1,3 +1,4 @@
+import { BudgetSummary } from "@/components/common/BudgetSummary";
 import { EditableField } from "@/components/common/EditableField";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import type { ApplianceCategory, ApplianceItem } from "@/types/renovation";
@@ -48,7 +49,16 @@ export function AppliancesStage({
         index={3}
       />
 
-      <div className="space-y-4">
+      <BudgetSummary
+        budget={appliances.reduce((sum, item) => sum + (item.budget || 0), 0)}
+        actualPrice={appliances.reduce(
+          (sum, item) => sum + (item.actualPrice || 0),
+          0,
+        )}
+        className="mt-6"
+      />
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {categories.map((category) => {
           const item =
             appliances.find((entry) => entry.category === category) ?? null;
@@ -86,7 +96,7 @@ export function AppliancesStage({
               </div>
 
               {item ? (
-                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="mt-4 space-y-4">
                   <EditableField
                     label="品牌型号"
                     value={item.brandModel}
@@ -101,22 +111,24 @@ export function AppliancesStage({
                     editMode={editMode}
                     onChange={(value) => updateItem(item.id, "channel", value)}
                   />
-                  <EditableField
-                    label="预算"
-                    value={item.budget}
-                    placeholder="0"
-                    type="number"
-                    editMode={editMode}
-                    onChange={(value) => updateItem(item.id, "budget", value)}
-                  />
-                  <EditableField
-                    label="成交价"
-                    value={item.actualPrice}
-                    placeholder="0"
-                    type="number"
-                    editMode={editMode}
-                    onChange={(value) => updateItem(item.id, "actualPrice", value)}
-                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <EditableField
+                      label="预算"
+                      value={item.budget}
+                      placeholder="0"
+                      type="number"
+                      editMode={editMode}
+                      onChange={(value) => updateItem(item.id, "budget", value)}
+                    />
+                    <EditableField
+                      label="成交价"
+                      value={item.actualPrice}
+                      placeholder="0"
+                      type="number"
+                      editMode={editMode}
+                      onChange={(value) => updateItem(item.id, "actualPrice", value)}
+                    />
+                  </div>
                   <EditableField
                     label="状态"
                     value={item.status}

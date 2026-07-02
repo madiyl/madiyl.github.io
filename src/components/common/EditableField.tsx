@@ -35,7 +35,7 @@ export function EditableField({
         ) : null}
         <div
           className={clsx(
-            "min-h-[1.5rem] text-sm leading-7 text-[#51453a]",
+            "min-h-[1.5rem] break-words whitespace-pre-wrap text-sm leading-7 text-[#51453a]",
             !stringValue && "italic text-[#b3a390]",
             displayClassName,
           )}

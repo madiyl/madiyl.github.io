@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
+import { BudgetSummary } from "@/components/common/BudgetSummary";
 import { EditableField } from "@/components/common/EditableField";
 import { ImageLightbox } from "@/components/common/ImageLightbox";
 import { ImagePathField } from "@/components/common/ImagePathField";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import type { SoftCategory, SoftFurnishingItem } from "@/types/renovation";
-import { createId, formatCurrency } from "@/utils/format";
+import { createId } from "@/utils/format";
 
 type SoftFurnishingStageProps = {
   items: SoftFurnishingItem[];
@@ -41,7 +42,10 @@ export function SoftFurnishingStage({
         item.id === id
           ? {
               ...item,
-              [key]: key === "price" ? Number(value || 0) : value,
+              [key]:
+                key === "budget" || key === "actualPrice"
+                  ? Number(value || 0)
+                  : value,
             }
           : item,
       ),
@@ -74,7 +78,16 @@ export function SoftFurnishingStage({
       <section id="soft" className="rounded-[32px] border border-white/60 bg-[#fbf7f1] p-6 shadow-soft sm:p-8">
         <SectionHeader eyebrow="软装选取" title="最后把家的气质慢慢拼起来" index={5} />
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <BudgetSummary
+          budget={items.reduce((sum, item) => sum + (item.budget || 0), 0)}
+          actualPrice={items.reduce(
+            (sum, item) => sum + (item.actualPrice || 0),
+            0,
+          )}
+          className="mt-6"
+        />
+
+        <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {items.map((item) => (
             <article
               key={item.id}
@@ -112,17 +125,26 @@ export function SoftFurnishingStage({
                   editMode={editMode}
                   onChange={(value) => updateItem(item.id, "brand", value)}
                 />
-                <div className="rounded-[22px] bg-[#f6efe6] px-4 py-3 text-sm font-medium text-[#7c654f]">
-                  当前价格：{formatCurrency(item.price)}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <EditableField
+                    label="预算"
+                    value={item.budget}
+                    placeholder="0"
+                    editMode={editMode}
+                    type="number"
+                    onChange={(value) => updateItem(item.id, "budget", value)}
+                  />
+                  <EditableField
+                    label="实付"
+                    value={item.actualPrice}
+                    placeholder="0"
+                    editMode={editMode}
+                    type="number"
+                    onChange={(value) =>
+                      updateItem(item.id, "actualPrice", value)
+                    }
+                  />
                 </div>
-                <EditableField
-                  label="价格"
-                  value={item.price}
-                  placeholder="0"
-                  editMode={editMode}
-                  type="number"
-                  onChange={(value) => updateItem(item.id, "price", value)}
-                />
                 <EditableField
                   label="选购理由"
                   value={item.reason}
@@ -167,7 +189,8 @@ export function SoftFurnishingStage({
                       category,
                       name: "",
                       brand: "",
-                      price: 0,
+                      budget: 0,
+                      actualPrice: 0,
                       reason: "",
                       status: "待挑选",
                       imagePath: "",

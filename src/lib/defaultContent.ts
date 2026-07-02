@@ -2,8 +2,10 @@ import type {
   ApplianceCategory,
   ConstructionPhase,
   MaterialCategory,
+  MaterialItem,
   RenovationPageData,
   SoftCategory,
+  TileQuoteItem,
 } from "@/types/renovation";
 
 const materialCategories: MaterialCategory[] = [
@@ -14,8 +16,34 @@ const materialCategories: MaterialCategory[] = [
   "木地板",
   "石材",
   "灯光",
-  "窗帘",
   "其它",
+];
+
+const defaultTileQuotes: TileQuoteItem[] = [
+  {
+    id: "tile-living-room",
+    label: "客厅",
+    selection: "木纹砖",
+    price: 0,
+  },
+  {
+    id: "tile-kitchen-dining",
+    label: "餐厨墙地",
+    selection: "灰白砖",
+    price: 0,
+  },
+  {
+    id: "tile-feature-wall",
+    label: "部分背景墙",
+    selection: "马赛克小砖",
+    price: 0,
+  },
+  {
+    id: "tile-bathroom-dry",
+    label: "公卫干区",
+    selection: "哑光小砖",
+    price: 0,
+  },
 ];
 
 const applianceCategories: ApplianceCategory[] = [
@@ -91,13 +119,18 @@ export const defaultContent: RenovationPageData = {
     id: `material-${index + 1}`,
     category,
     vendor: category === "瓷砖" ? "样板商家：广州 XX 岩板馆" : "待填写商家信息",
-    selection: category === "瓷砖" ? "客餐厅 750x1500 浅暖灰砖" : "待确认最终选品",
+    selection: category === "施工" ? "" : "待确认最终选品",
     budget: category === "瓷砖" ? 18000 : 0,
     actualPrice: category === "瓷砖" ? 19600 : 0,
     note:
       category === "瓷砖"
         ? "预算略超，但通铺效果和砖面质感更稳定。"
         : "可记录方案对比、选品理由与议价过程。",
+    pdfUrl: "",
+    excelUrl: "",
+    tileQuotes: category === "瓷砖" ? defaultTileQuotes : undefined,
+    tileImagePath:
+      category === "瓷砖" ? "/uploads/renovation/materials/tiles-overview.jpg" : undefined,
   })),
   appliances: applianceCategories.map((category, index) => ({
     id: `appliance-${index + 1}`,
@@ -126,7 +159,8 @@ export const defaultContent: RenovationPageData = {
     category,
     name: index === 0 ? "奶油色模块化沙发" : "待挑选商品",
     brand: index === 0 ? "示例店铺：某家居设计品牌" : "",
-    price: index === 0 ? 8999 : 0,
+    budget: index === 0 ? 9500 : 0,
+    actualPrice: index === 0 ? 8999 : 0,
     reason: index === 0 ? "线条柔和、落座舒适，和整体木色更协调。" : "记录尺寸、颜色、预算与选购理由。",
     status: index === 0 ? "候选第一优先级" : "待挑选",
     imagePath: index === 0 ? "/uploads/renovation/soft/sofa-01.jpg" : "",
@@ -141,8 +175,27 @@ export function mergeWithDefaultContent(
   partial?: Partial<RenovationPageData> | null,
 ) {
   const base = deepCloneDefaultContent();
+  const baseMaterialsByCategory = new Map(
+    base.materials.map((item) => [item.category, item]),
+  );
 
   if (!partial) return base;
+
+  const materialRoleCounters = new Map<string, number>();
+  const normalizeMaterialRole = (item: MaterialItem) => {
+    if (item.category !== "施工" && item.category !== "定制") {
+      return item.quoteRole;
+    }
+
+    if (item.quoteRole) {
+      return item.quoteRole;
+    }
+
+    const nextIndex = materialRoleCounters.get(item.category) ?? 0;
+    materialRoleCounters.set(item.category, nextIndex + 1);
+
+    return nextIndex === 0 ? "selected" : "comparison";
+  };
 
   return {
     ...base,
@@ -159,7 +212,25 @@ export function mergeWithDefaultContent(
         ? partial.design.renders
         : base.design.renders,
     },
-    materials: partial.materials?.length ? partial.materials : base.materials,
+    materials: partial.materials?.length
+      ? partial.materials
+          .filter((item) => String(item.category) !== "窗帘")
+          .map((item) => {
+            const baseMaterial = baseMaterialsByCategory.get(item.category);
+            return {
+              ...(baseMaterial ?? {
+                pdfUrl: "",
+                excelUrl: "",
+              }),
+              ...item,
+              quoteRole: normalizeMaterialRole(item as MaterialItem),
+              pdfUrl: item.pdfUrl ?? "",
+              excelUrl: item.excelUrl ?? "",
+              tileQuotes: item.tileQuotes ?? baseMaterial?.tileQuotes,
+              tileImagePath: item.tileImagePath ?? baseMaterial?.tileImagePath,
+            };
+          })
+      : base.materials,
     appliances: partial.appliances?.length
       ? partial.appliances
       : base.appliances,
@@ -167,7 +238,11 @@ export function mergeWithDefaultContent(
       ? partial.construction
       : base.construction,
     softFurnishings: partial.softFurnishings?.length
-      ? partial.softFurnishings
+      ? partial.softFurnishings.map((item) => ({
+          ...item,
+          budget: item.budget ?? item.price ?? 0,
+          actualPrice: item.actualPrice ?? item.price ?? 0,
+        }))
       : base.softFurnishings,
   };
 }
