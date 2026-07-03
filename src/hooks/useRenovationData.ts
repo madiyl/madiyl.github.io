@@ -54,7 +54,7 @@ export function useRenovationData() {
   }, [savedSnapshot]);
 
   const save = useCallback(
-    async (password: string) => {
+    async (password?: string) => {
       setIsSaving(true);
       setError("");
 

@@ -9,6 +9,7 @@ type ImagePathFieldProps = {
   ratioClassName?: string;
   previewable?: boolean;
   onPreview?: () => void;
+  zoomOnHover?: boolean;
 };
 
 export function ImagePathField({
@@ -20,6 +21,7 @@ export function ImagePathField({
   ratioClassName = "aspect-[4/3]",
   previewable = false,
   onPreview,
+  zoomOnHover = true,
 }: ImagePathFieldProps) {
   const canPreview = previewable && Boolean(value) && Boolean(onPreview);
 
@@ -54,7 +56,10 @@ export function ImagePathField({
             <img
               src={value}
               alt={alt}
-              className="h-full w-full object-cover transition duration-500 hover:scale-[1.02]"
+              className={clsx(
+                "h-full w-full object-cover",
+                zoomOnHover ? "transition duration-500 hover:scale-[1.02]" : "",
+              )}
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#efe4d6] via-[#f9f5ef] to-[#e8e3d8] px-6 text-center text-sm text-[#8b7966]">

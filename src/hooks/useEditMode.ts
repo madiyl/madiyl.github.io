@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { verifyEditPassword } from "@/lib/contentApi";
 
 export function useEditMode() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -8,17 +7,13 @@ export function useEditMode() {
   const [authError, setAuthError] = useState("");
   const [authenticating, setAuthenticating] = useState(false);
 
-  const canSubmit = useMemo(
-    () => password.trim().length > 0 && !authenticating,
-    [authenticating, password],
-  );
+  const canSubmit = useMemo(() => !authenticating, [authenticating]);
 
   const authenticate = async () => {
     setAuthenticating(true);
     setAuthError("");
 
     try {
-      await verifyEditPassword(password);
       setEditMode(true);
       setDrawerOpen(false);
     } catch (error) {

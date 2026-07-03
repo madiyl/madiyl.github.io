@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BudgetSummary } from "@/components/common/BudgetSummary";
 import { EditableField } from "@/components/common/EditableField";
 import { FilePreviewDialog } from "@/components/common/FilePreviewDialog";
+import { ImageLightbox } from "@/components/common/ImageLightbox";
 import { ImagePathField } from "@/components/common/ImagePathField";
 import { PriceBadge } from "@/components/common/PriceBadge";
 import { SectionHeader } from "@/components/common/SectionHeader";
@@ -81,6 +82,7 @@ export function MaterialsStage({
   editMode,
   onChange,
 }: MaterialsStageProps) {
+  const [previewImageItemId, setPreviewImageItemId] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<{
     title: string;
     url: string;
@@ -251,7 +253,13 @@ export function MaterialsStage({
     >
       <div className="space-y-4">
         {isDualVendorCategory(item.category) ? (
-          <div className="inline-flex rounded-full bg-[#f1e8dc] px-3 py-1 text-xs font-semibold text-[#7c654f]">
+          <div
+            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+              item.quoteRole === "selected"
+                ? "bg-[#efe1cf] text-[#8a5d35]"
+                : "bg-[#ece8e1] text-[#6f675e]"
+            }`}
+          >
             {item.quoteRole === "selected" ? "已选方案" : "对比方案"}
           </div>
         ) : null}
@@ -282,14 +290,16 @@ export function MaterialsStage({
           />
         </div>
         <PriceBadge budget={item.budget} actualPrice={item.actualPrice} />
-        <EditableField
-          label="备注"
-          value={item.note}
-          placeholder="记录议价过程、安装要求或后续待办"
-          editMode={editMode}
-          multiline
-          onChange={(value) => updateItem(item.id, "note", value)}
-        />
+        {editMode || item.note.trim() ? (
+          <EditableField
+            label="备注"
+            value={item.note}
+            placeholder="记录议价过程、安装要求或后续待办"
+            editMode={editMode}
+            multiline
+            onChange={(value) => updateItem(item.id, "note", value)}
+          />
+        ) : null}
         {renderAttachmentSection(item)}
       </div>
 
@@ -373,14 +383,16 @@ export function MaterialsStage({
 
         <PriceBadge budget={item.budget} actualPrice={item.actualPrice} />
 
-        <EditableField
-          label="备注"
-          value={item.note}
-          placeholder="记录铺贴方式、损耗、收口或预算口径"
-          editMode={editMode}
-          multiline
-          onChange={(value) => updateItem(item.id, "note", value)}
-        />
+        {editMode || item.note.trim() ? (
+          <EditableField
+            label="备注"
+            value={item.note}
+            placeholder="记录铺贴方式、损耗、收口或预算口径"
+            editMode={editMode}
+            multiline
+            onChange={(value) => updateItem(item.id, "note", value)}
+          />
+        ) : null}
 
         <ImagePathField
           value={item.tileImagePath ?? ""}
@@ -388,6 +400,9 @@ export function MaterialsStage({
           editMode={editMode}
           onChange={(value) => updateItem(item.id, "tileImagePath", value)}
           ratioClassName="aspect-[16/8]"
+          previewable
+          onPreview={() => setPreviewImageItemId(item.id)}
+          zoomOnHover={false}
         />
       </div>
 
@@ -408,7 +423,7 @@ export function MaterialsStage({
       <SectionHeader
         eyebrow="主材选购"
         title="主材选择与预算结果"
-        index={2}
+        index={3}
       />
 
       <BudgetSummary
@@ -464,6 +479,29 @@ export function MaterialsStage({
         title={previewFile?.title ?? "附件预览"}
         fileType={previewFile?.type ?? "pdf"}
         onClose={() => setPreviewFile(null)}
+      />
+
+      <ImageLightbox
+        open={Boolean(previewImageItemId)}
+        images={
+          previewImageItemId
+            ? [
+                {
+                  src:
+                    materials.find((item) => item.id === previewImageItemId)?.tileImagePath ??
+                    "",
+                  alt: "瓷砖示意图",
+                  caption:
+                    materials.find((item) => item.id === previewImageItemId)?.note ?? "",
+                },
+              ].filter((image) => image.src)
+            : []
+        }
+        activeIndex={0}
+        onClose={() => setPreviewImageItemId(null)}
+        onSelect={() => {}}
+        onPrev={() => {}}
+        onNext={() => {}}
       />
     </section>
   );

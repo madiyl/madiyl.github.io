@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { PageShell } from "@/components/layout/PageShell";
 import { EditableField } from "@/components/common/EditableField";
@@ -5,6 +6,7 @@ import { AppliancesStage } from "@/components/stages/AppliancesStage";
 import { ConstructionStage } from "@/components/stages/ConstructionStage";
 import { DesignStage } from "@/components/stages/DesignStage";
 import { MaterialsStage } from "@/components/stages/MaterialsStage";
+import { PeopleIntroStage } from "@/components/stages/PeopleIntroStage";
 import { SoftFurnishingStage } from "@/components/stages/SoftFurnishingStage";
 import type { RenovationPageData } from "@/types/renovation";
 import { formatDate } from "@/utils/format";
@@ -19,11 +21,12 @@ type RenovationJourneyPageProps = {
 };
 
 const navItems = [
-  { href: "#design", label: "设计阶段" },
-  { href: "#materials", label: "主材选购" },
-  { href: "#appliances", label: "电器选购" },
-  { href: "#construction", label: "施工流程" },
-  { href: "#soft", label: "软装选取" },
+  { key: "people", label: "人员介绍" },
+  { key: "design", label: "设计阶段" },
+  { key: "materials", label: "主材选购" },
+  { key: "appliances", label: "电器选购" },
+  { key: "construction", label: "施工流程" },
+  { key: "soft", label: "软装选取" },
 ];
 
 export function RenovationJourneyPage({
@@ -34,6 +37,104 @@ export function RenovationJourneyPage({
   updatedAt,
   onChange,
 }: RenovationJourneyPageProps) {
+  const [activeModuleKey, setActiveModuleKey] = useState<(typeof navItems)[number]["key"]>("people");
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const activeModuleRef = useRef<HTMLDivElement | null>(null);
+
+  const modules = [
+    {
+      key: "people" as const,
+      element: (
+        <PeopleIntroStage
+          people={data.people}
+          editMode={editMode}
+          onChange={(people) => onChange({ ...data, people })}
+        />
+      ),
+    },
+    {
+      key: "design" as const,
+      element: (
+        <DesignStage
+          design={data.design}
+          editMode={editMode}
+          onChange={(design) => onChange({ ...data, design })}
+        />
+      ),
+    },
+    {
+      key: "materials" as const,
+      element: (
+        <MaterialsStage
+          materials={data.materials}
+          editMode={editMode}
+          onChange={(materials) => onChange({ ...data, materials })}
+        />
+      ),
+    },
+    {
+      key: "appliances" as const,
+      element: (
+        <AppliancesStage
+          appliances={data.appliances}
+          editMode={editMode}
+          onChange={(appliances) => onChange({ ...data, appliances })}
+        />
+      ),
+    },
+    {
+      key: "construction" as const,
+      element: (
+        <ConstructionStage
+          construction={data.construction}
+          editMode={editMode}
+          onChange={(construction) => onChange({ ...data, construction })}
+        />
+      ),
+    },
+    {
+      key: "soft" as const,
+      element: (
+        <SoftFurnishingStage
+          items={data.softFurnishings}
+          editMode={editMode}
+          onChange={(softFurnishings) => onChange({ ...data, softFurnishings })}
+        />
+      ),
+    },
+  ];
+
+  const activeModule =
+    modules.find((module) => module.key === activeModuleKey) ?? modules[0];
+
+  const scrollActiveModuleIntoSafePosition = () => {
+    const moduleNode = activeModuleRef.current;
+    const navNode = navRef.current;
+    if (!moduleNode || !navNode) return;
+
+    const navHeight = navNode.getBoundingClientRect().height;
+    const stickyTopOffset = 16;
+    const safeGap = 16;
+    const targetTop =
+      window.scrollY +
+      moduleNode.getBoundingClientRect().top -
+      (navHeight + stickyTopOffset + safeGap);
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: "smooth",
+    });
+  };
+
+  const handleModuleChange = (nextKey: (typeof navItems)[number]["key"]) => {
+    setActiveModuleKey(nextKey);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        scrollActiveModuleIntoSafePosition();
+      });
+    });
+  };
+
   return (
     <PageShell>
       <div className="space-y-8">
@@ -115,16 +216,24 @@ export function RenovationJourneyPage({
           </div>
         </section>
 
-        <div className="sticky top-4 z-30 overflow-x-auto rounded-full border border-white/60 bg-white/75 px-3 py-3 shadow-soft backdrop-blur">
-          <nav className="flex min-w-max gap-2">
+        <div
+          ref={navRef}
+          className="sticky top-4 z-30 overflow-x-auto rounded-full border border-white/60 bg-white/75 px-2 py-2 shadow-soft backdrop-blur sm:px-3 sm:py-3 md:overflow-visible"
+        >
+          <nav className="flex min-w-max gap-2 md:min-w-0 md:flex-wrap md:justify-center">
             {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-[#5b4b3e] transition hover:bg-[#f3ebdf] hover:text-ink"
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => handleModuleChange(item.key)}
+                className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
+                  item.key === activeModule.key
+                    ? "bg-[#f3ebdf] text-ink"
+                    : "text-[#5b4b3e] hover:bg-[#f3ebdf] hover:text-ink"
+                }`}
               >
                 {item.label}
-              </a>
+              </button>
             ))}
           </nav>
         </div>
@@ -141,35 +250,9 @@ export function RenovationJourneyPage({
           </div>
         ) : null}
 
-        <DesignStage
-          design={data.design}
-          editMode={editMode}
-          onChange={(design) => onChange({ ...data, design })}
-        />
-
-        <MaterialsStage
-          materials={data.materials}
-          editMode={editMode}
-          onChange={(materials) => onChange({ ...data, materials })}
-        />
-
-        <AppliancesStage
-          appliances={data.appliances}
-          editMode={editMode}
-          onChange={(appliances) => onChange({ ...data, appliances })}
-        />
-
-        <ConstructionStage
-          construction={data.construction}
-          editMode={editMode}
-          onChange={(construction) => onChange({ ...data, construction })}
-        />
-
-        <SoftFurnishingStage
-          items={data.softFurnishings}
-          editMode={editMode}
-          onChange={(softFurnishings) => onChange({ ...data, softFurnishings })}
-        />
+        <div ref={activeModuleRef} className="pt-4">
+          {activeModule.element}
+        </div>
       </div>
     </PageShell>
   );

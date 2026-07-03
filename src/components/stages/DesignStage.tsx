@@ -70,7 +70,7 @@ export function DesignStage({ design, editMode, onChange }: DesignStageProps) {
   return (
     <>
       <section id="design" className="rounded-[32px] border border-white/60 bg-mist/80 p-6 shadow-soft sm:p-8">
-        <SectionHeader eyebrow="设计阶段" title="把空间气质先定下来" index={1} />
+        <SectionHeader eyebrow="设计阶段" title="把空间气质先定下来" index={2} />
 
         <div className="space-y-10">
           {(Object.keys(groupMeta) as DesignGroupKey[]).map((group) => (
@@ -147,20 +147,22 @@ export function DesignStage({ design, editMode, onChange }: DesignStageProps) {
                         }
                         displayClassName="text-lg font-semibold text-ink"
                       />
-                      <EditableField
-                        label="说明"
-                        value={asset.note}
-                        placeholder="记录这张图的重点、版本差异或确认事项"
-                        editMode={editMode}
-                        multiline
-                        onChange={(value) =>
-                          updateGroup(group, (items) =>
-                            items.map((item) =>
-                              item.id === asset.id ? { ...item, note: value } : item,
-                            ),
-                          )
-                        }
-                      />
+                      {editMode || asset.note.trim() ? (
+                        <EditableField
+                          label="说明"
+                          value={asset.note}
+                          placeholder="记录这张图的重点、版本差异或确认事项"
+                          editMode={editMode}
+                          multiline
+                          onChange={(value) =>
+                            updateGroup(group, (items) =>
+                              items.map((item) =>
+                                item.id === asset.id ? { ...item, note: value } : item,
+                              ),
+                            )
+                          }
+                        />
+                      ) : null}
                     </div>
 
                     {editMode ? (

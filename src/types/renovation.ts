@@ -24,9 +24,12 @@ export type ApplianceCategory =
   | "冰箱"
   | "洗烘套装"
   | "洗碗机"
-  | "油烟机"
-  | "燃气灶"
+  | "烟灶套装"
   | "燃气热水器";
+
+export type ApplianceChannel = "电商平台" | "线下门店" | "团购";
+
+export type ApplianceStatus = "选品" | "加购" | "已购";
 
 export type ConstructionPhase =
   | "成品保护"
@@ -58,6 +61,17 @@ export type SiteMeta = {
   updatedAt: string;
 };
 
+export type CollaboratorGroup = "业主" | "Uni工作室" | "主材商";
+
+export type PersonProfile = {
+  id: string;
+  group: CollaboratorGroup;
+  role: string;
+  name: string;
+  avatarPath: string;
+  note: string;
+};
+
 export type DesignAsset = {
   id: string;
   group: DesignGroupKey;
@@ -86,10 +100,12 @@ export type ApplianceItem = {
   id: string;
   category: ApplianceCategory;
   brandModel: string;
-  channel: string;
+  channel: ApplianceChannel;
+  productUrl: string;
+  imageDir: string;
   budget: number;
   actualPrice: number;
-  status: string;
+  status: ApplianceStatus;
   note: string;
 };
 
@@ -118,6 +134,7 @@ export type SoftFurnishingItem = {
 
 export type RenovationPageData = {
   meta: SiteMeta;
+  people: PersonProfile[];
   design: Record<DesignGroupKey, DesignAsset[]>;
   materials: MaterialItem[];
   appliances: ApplianceItem[];

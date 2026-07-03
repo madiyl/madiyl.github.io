@@ -56,7 +56,7 @@ export async function loadRenovationPageData(): Promise<LoadContentResult> {
   };
 }
 
-export async function verifyEditPassword(password: string) {
+export async function verifyEditPassword(password?: string) {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error("未配置 Supabase，暂时无法在线验证编辑密码。");
   }
@@ -64,7 +64,7 @@ export async function verifyEditPassword(password: string) {
   const { data, error } = await supabase.functions.invoke("save-renovation-page", {
     body: {
       mode: "verify",
-      password,
+      password: password ?? "",
     },
   });
 
@@ -81,7 +81,7 @@ export async function verifyEditPassword(password: string) {
 
 export async function saveRenovationPageData(
   payload: RenovationPageData,
-  password: string,
+  password?: string,
 ) {
   if (!isSupabaseConfigured || !supabase) {
     throw new Error("未配置 Supabase，暂时无法在线保存。");
@@ -91,7 +91,7 @@ export async function saveRenovationPageData(
     body: {
       mode: "save",
       slug: PAGE_SLUG,
-      password,
+      password: password ?? "",
       content: payload,
     },
   });

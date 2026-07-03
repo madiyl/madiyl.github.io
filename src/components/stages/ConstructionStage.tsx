@@ -39,7 +39,7 @@ export function ConstructionStage({
       <SectionHeader
         eyebrow="施工流程"
         title="把节点、进度和风险一起管起来"
-        index={4}
+        index={5}
       />
 
       <div className="space-y-5">

@@ -76,7 +76,7 @@ export function SoftFurnishingStage({
   return (
     <>
       <section id="soft" className="rounded-[32px] border border-white/60 bg-[#fbf7f1] p-6 shadow-soft sm:p-8">
-        <SectionHeader eyebrow="软装选取" title="最后把家的气质慢慢拼起来" index={5} />
+        <SectionHeader eyebrow="软装选取" title="最后把家的气质慢慢拼起来" index={6} />
 
         <BudgetSummary
           budget={items.reduce((sum, item) => sum + (item.budget || 0), 0)}
@@ -145,14 +145,16 @@ export function SoftFurnishingStage({
                     }
                   />
                 </div>
-                <EditableField
-                  label="选购理由"
-                  value={item.reason}
-                  placeholder="记录尺寸、材质、颜色或使用感考虑"
-                  editMode={editMode}
-                  multiline
-                  onChange={(value) => updateItem(item.id, "reason", value)}
-                />
+                {editMode || item.reason.trim() ? (
+                  <EditableField
+                    label="选购理由"
+                    value={item.reason}
+                    placeholder="记录尺寸、材质、颜色或使用感考虑"
+                    editMode={editMode}
+                    multiline
+                    onChange={(value) => updateItem(item.id, "reason", value)}
+                  />
+                ) : null}
                 <EditableField
                   label="状态"
                   value={item.status}

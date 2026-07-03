@@ -25,11 +25,9 @@ function App() {
   const {
     drawerOpen,
     editMode,
-    password,
     authError,
     authenticating,
     setDrawerOpen,
-    setPassword,
     authenticate,
     lock,
   } = useEditMode();
@@ -47,7 +45,7 @@ function App() {
     setIsExitSaving(true);
 
     try {
-      await save(password);
+      await save();
       setExitConfirmOpen(false);
       lock();
     } catch {
@@ -91,7 +89,6 @@ function App() {
       <EditDrawer
         open={drawerOpen}
         editMode={editMode}
-        password={password}
         authError={authError}
         authenticating={authenticating}
         isSaving={isSaving}
@@ -99,9 +96,8 @@ function App() {
         configured={isSupabaseConfigured}
         onOpen={() => setDrawerOpen(true)}
         onClose={() => setDrawerOpen(false)}
-        onPasswordChange={setPassword}
         onAuthenticate={authenticate}
-        onSave={() => save(password)}
+        onSave={() => save()}
         onReset={resetChanges}
         onLock={handleExitEditRequest}
       />

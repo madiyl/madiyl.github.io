@@ -60,13 +60,13 @@ export function ImageLightbox({
         </button>
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),172px]">
-          <div className="flex min-h-[72vh] flex-col rounded-[30px] bg-[#e3dbcf] p-4 sm:p-5">
+          <div className="flex min-h-[78vh] flex-col rounded-[30px] bg-[#e3dbcf] p-4 sm:p-5">
             <div className="flex-1">
-              <div className="relative flex h-full min-h-[56vh] items-center justify-center overflow-hidden rounded-[28px] bg-[#ebe5dc] px-4 py-6 sm:px-6">
+              <div className="relative flex h-full min-h-[64vh] items-center justify-center overflow-hidden rounded-[28px] bg-[#ebe5dc] px-4 py-5 sm:px-6">
                 <img
                   src={current.src}
                   alt={current.alt}
-                  className="max-h-[58vh] w-full object-contain"
+                  className="max-h-[70vh] w-full object-contain"
                 />
 
                 {images.length > 1 ? (
@@ -74,16 +74,18 @@ export function ImageLightbox({
                     <button
                       type="button"
                       onClick={onPrev}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-4 py-3 text-sm font-medium text-ink shadow-soft transition hover:bg-white"
+                      className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-base font-medium text-ink shadow-soft transition hover:bg-white sm:left-4 sm:h-11 sm:w-11"
+                      aria-label="上一张"
                     >
-                      上一张
+                      ‹
                     </button>
                     <button
                       type="button"
                       onClick={onNext}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/90 px-4 py-3 text-sm font-medium text-ink shadow-soft transition hover:bg-white"
+                      className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-base font-medium text-ink shadow-soft transition hover:bg-white sm:right-4 sm:h-11 sm:w-11"
+                      aria-label="下一张"
                     >
-                      下一张
+                      ›
                     </button>
                   </>
                 ) : null}
