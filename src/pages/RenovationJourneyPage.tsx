@@ -38,8 +38,8 @@ export function RenovationJourneyPage({
   onChange,
 }: RenovationJourneyPageProps) {
   const [activeModuleKey, setActiveModuleKey] = useState<(typeof navItems)[number]["key"]>("people");
+  const heroRef = useRef<HTMLElement | null>(null);
   const navRef = useRef<HTMLDivElement | null>(null);
-  const activeModuleRef = useRef<HTMLDivElement | null>(null);
 
   const modules = [
     {
@@ -106,19 +106,52 @@ export function RenovationJourneyPage({
 
   const activeModule =
     modules.find((module) => module.key === activeModuleKey) ?? modules[0];
+  const activeSummary = (() => {
+    switch (activeModule.key) {
+      case "people":
+        return {
+          stat: `${data.people.length} 位成员`,
+          detail: `${new Set(data.people.map((item) => item.group)).size} 组协作关系`,
+        };
+      case "design":
+        return {
+          stat: `${Object.values(data.design).reduce((sum, items) => sum + items.length, 0)} 张设计稿`,
+          detail: "平面 / 立面 / 效果图统一归档",
+        };
+      case "materials":
+        return {
+          stat: `${data.materials.length} 条主材记录`,
+          detail: "预算、附件和对比信息集中浏览",
+        };
+      case "appliances":
+        return {
+          stat: `${data.appliances.length} 条电器记录`,
+          detail: "型号、渠道和实付金额并排呈现",
+        };
+      case "construction":
+        return {
+          stat: `${data.construction.length} 个大阶段`,
+          detail: `${data.construction.reduce((sum, stage) => sum + stage.tasks.length, 0)} 条施工任务`,
+        };
+      case "soft":
+        return {
+          stat: `${data.softFurnishings.length} 条软装选择`,
+          detail: "尺寸、预算和选购理由同页留痕",
+        };
+      default:
+        return { stat: "", detail: "" };
+    }
+  })();
 
-  const scrollActiveModuleIntoSafePosition = () => {
-    const moduleNode = activeModuleRef.current;
-    const navNode = navRef.current;
-    if (!moduleNode || !navNode) return;
+  const scrollHeroIntoFullView = () => {
+    const heroNode = heroRef.current;
+    if (!heroNode) return;
 
-    const navHeight = navNode.getBoundingClientRect().height;
-    const stickyTopOffset = 16;
-    const safeGap = 16;
+    const topGap = window.innerWidth < 640 ? 12 : 16;
     const targetTop =
       window.scrollY +
-      moduleNode.getBoundingClientRect().top -
-      (navHeight + stickyTopOffset + safeGap);
+      heroNode.getBoundingClientRect().top -
+      topGap;
 
     window.scrollTo({
       top: Math.max(0, targetTop),
@@ -130,20 +163,24 @@ export function RenovationJourneyPage({
     setActiveModuleKey(nextKey);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        scrollActiveModuleIntoSafePosition();
+        scrollHeroIntoFullView();
       });
     });
   };
 
   return (
     <PageShell>
-      <div className="space-y-8">
-        <section className="overflow-hidden rounded-[36px] border border-white/70 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.96),_rgba(246,238,228,0.88)_50%,_rgba(234,223,206,0.78))] p-6 shadow-soft sm:p-8 lg:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr,0.8fr] lg:items-end">
-            <div className="space-y-5">
-              <div className="inline-flex rounded-full bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-accent shadow-sm">
+      <div className="space-y-8 lg:space-y-10">
+        <section ref={heroRef} className="overflow-hidden rounded-[40px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(135deg,rgba(255,255,255,0.9),rgba(246,238,228,0.82)_52%,rgba(233,222,205,0.76))] p-6 shadow-soft sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1.35fr,0.82fr] lg:items-end">
+            <div className="space-y-6">
+              <div className="inline-flex rounded-full border border-white/80 bg-white/70 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#9a7c5f] shadow-sm">
                 可分享装修记录页
               </div>
+              <div className="space-y-4 border-l border-[rgba(157,136,114,0.22)] pl-4 sm:pl-6">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.34em] text-[#8f755b]">
+                  Editorial Overview
+                </div>
               <EditableField
                 value={data.meta.title}
                 editMode={editMode}
@@ -154,7 +191,7 @@ export function RenovationJourneyPage({
                   })
                 }
                 placeholder="请输入页面标题"
-                displayClassName="text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl"
+                  displayClassName="font-serif text-4xl font-semibold leading-[1.02] tracking-tight text-[#1f1812] sm:text-[3.35rem]"
               />
               <EditableField
                 value={data.meta.subtitle}
@@ -166,8 +203,9 @@ export function RenovationJourneyPage({
                   })
                 }
                 placeholder="请输入副标题"
-                displayClassName="text-lg leading-8 text-[#5f5245]"
+                  displayClassName="max-w-3xl text-lg leading-8 text-[#5f5245]"
               />
+              </div>
               <EditableField
                 label="页面导语"
                 value={data.meta.intro}
@@ -180,7 +218,7 @@ export function RenovationJourneyPage({
                 }
                 placeholder="描述这次装修的目标、风格和记录方式"
                 multiline
-                className="max-w-3xl"
+                  className="max-w-3xl"
               />
             </div>
 
@@ -188,28 +226,31 @@ export function RenovationJourneyPage({
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="rounded-[30px] border border-white/80 bg-white/80 p-5 shadow-soft"
+              className="rounded-[32px] border border-white/80 bg-[rgba(255,255,255,0.78)] p-5 shadow-soft backdrop-blur"
             >
-              <div className="space-y-4">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                    分享说明
-                  </div>
-                  <EditableField
-                    value={data.meta.shareCopy}
-                    editMode={editMode}
-                    onChange={(value) =>
-                      onChange({
-                        ...data,
-                        meta: { ...data.meta, shareCopy: value },
-                      })
-                    }
-                    placeholder="介绍这个页面适合分享给谁、为什么值得看"
-                    multiline
-                  />
+              <div className="space-y-4 rounded-[24px] border border-white/70 bg-[#fbf8f4] px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8f7d69]">
+                  核心摘要
                 </div>
-                <div className="rounded-[24px] bg-[#f7efe5] px-4 py-4 text-sm leading-7 text-[#6a5a4b]">
-                  最近更新：{formatDate(updatedAt)}
+                <div className="grid gap-3">
+                  <div className="rounded-[20px] border border-white/70 bg-white px-4 py-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
+                      当前章节
+                    </div>
+                    <div className="mt-2 text-base font-semibold text-ink">
+                      {navItems.find((item) => item.key === activeModule.key)?.label}
+                    </div>
+                  </div>
+                  <div className="rounded-[20px] border border-white/70 bg-white px-4 py-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
+                      内容规模
+                    </div>
+                    <div className="mt-2 text-base font-semibold text-ink">{activeSummary.stat}</div>
+                    <div className="mt-1 text-sm text-[#6c5d50]">{activeSummary.detail}</div>
+                  </div>
+                  <div className="rounded-[20px] bg-[#f7efe5] px-4 py-3 text-sm leading-7 text-[#6a5a4b]">
+                    最近更新：{formatDate(updatedAt)}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -218,23 +259,28 @@ export function RenovationJourneyPage({
 
         <div
           ref={navRef}
-          className="sticky top-4 z-30 overflow-x-auto rounded-full border border-white/60 bg-white/75 px-2 py-2 shadow-soft backdrop-blur sm:px-3 sm:py-3 md:overflow-visible"
+          className="sticky top-4 z-30 overflow-x-auto rounded-[28px] border border-white/65 bg-[rgba(255,255,255,0.74)] px-3 py-3 shadow-soft backdrop-blur md:overflow-visible"
         >
-          <nav className="flex min-w-max gap-2 md:min-w-0 md:flex-wrap md:justify-center">
+          <nav className="flex min-w-max items-center gap-2 md:min-w-0 md:flex-wrap md:justify-between">
+            <div className="hidden pl-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8f755b] md:block">
+              Chapter Navigation
+            </div>
+            <div className="flex gap-2 md:flex-wrap md:justify-center">
             {navItems.map((item) => (
               <button
                 key={item.key}
                 type="button"
                 onClick={() => handleModuleChange(item.key)}
-                className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
+                  className={`whitespace-nowrap rounded-full px-3 py-2 text-xs font-medium transition sm:px-4 sm:text-sm ${
                   item.key === activeModule.key
-                    ? "bg-[#f3ebdf] text-ink"
-                    : "text-[#5b4b3e] hover:bg-[#f3ebdf] hover:text-ink"
+                      ? "bg-[#211b15] text-white shadow-sm"
+                      : "text-[#5b4b3e] hover:bg-[#f3ebdf] hover:text-ink"
                 }`}
               >
                 {item.label}
               </button>
             ))}
+            </div>
           </nav>
         </div>
 
@@ -250,7 +296,7 @@ export function RenovationJourneyPage({
           </div>
         ) : null}
 
-        <div ref={activeModuleRef} className="pt-4">
+        <div className="pt-4">
           {activeModule.element}
         </div>
       </div>

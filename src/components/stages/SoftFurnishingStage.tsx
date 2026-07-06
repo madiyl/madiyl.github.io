@@ -75,8 +75,13 @@ export function SoftFurnishingStage({
 
   return (
     <>
-      <section id="soft" className="rounded-[32px] border border-white/60 bg-[#fbf7f1] p-6 shadow-soft sm:p-8">
-        <SectionHeader eyebrow="软装选取" title="最后把家的气质慢慢拼起来" index={6} />
+      <section id="soft" className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(251,247,241,0.96),rgba(246,240,233,0.88))] p-6 shadow-soft sm:p-8">
+        <SectionHeader
+          eyebrow="软装选取"
+          title="最后把家的气质慢慢拼起来"
+          index={6}
+          description="这一章更像生活方式收尾：先看整体候选，再回到每件单品的预算和理由。"
+        />
 
         <BudgetSummary
           budget={items.reduce((sum, item) => sum + (item.budget || 0), 0)}

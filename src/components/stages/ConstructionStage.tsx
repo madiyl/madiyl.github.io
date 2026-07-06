@@ -153,11 +153,12 @@ export function ConstructionStage({
   };
 
   return (
-    <section id="construction" className="rounded-[32px] border border-white/60 bg-[#f8f3ea] p-6 shadow-soft sm:p-8">
+    <section id="construction" className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(248,243,234,0.96),rgba(242,235,226,0.88))] p-6 shadow-soft sm:p-8">
       <SectionHeader
         eyebrow="施工流程"
         title="把节点、进度和风险一起管起来"
         index={5}
+        description="先读顶部的大阶段节奏，再往下看每个阶段里的任务、时间和风险记录。"
       />
 
       <div className="mt-6 rounded-[28px] border border-white/70 bg-white/75 p-4 shadow-soft sm:p-5">

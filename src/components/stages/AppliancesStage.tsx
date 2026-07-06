@@ -160,11 +160,12 @@ export function AppliancesStage({
   }, [appliances, imageMap, previewCategory]);
 
   return (
-    <section id="appliances" className="rounded-[32px] border border-white/60 bg-[#f4efe7] p-6 shadow-soft sm:p-8">
+    <section id="appliances" className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(244,239,231,0.95),rgba(240,233,224,0.88))] p-6 shadow-soft sm:p-8">
       <SectionHeader
         eyebrow="电器选购"
         title="把型号和购买节点理成清单"
         index={4}
+        description="浏览时先读结论，编辑时再展开型号、渠道、链接和预览图这些更细的购买信息。"
       />
 
       <BudgetSummary

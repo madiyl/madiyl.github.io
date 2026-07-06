@@ -178,12 +178,13 @@ export function PeopleIntroStage({
   return (
     <section
       id="people"
-      className="rounded-[32px] border border-white/60 bg-[#f7f2ea] p-6 shadow-soft sm:p-8"
+      className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(247,242,234,0.95),rgba(243,236,227,0.88))] p-6 shadow-soft sm:p-8"
     >
       <SectionHeader
         eyebrow="人员介绍"
         title="把这次装修里一起协作的人先认识一下"
         index={1}
+        description="这一章更像协作地图：先看角色关系，再看每个人手上的信息和备注。"
       />
 
       <div className="space-y-6">

@@ -69,8 +69,13 @@ export function DesignStage({ design, editMode, onChange }: DesignStageProps) {
 
   return (
     <>
-      <section id="design" className="rounded-[32px] border border-white/60 bg-mist/80 p-6 shadow-soft sm:p-8">
-        <SectionHeader eyebrow="设计阶段" title="把空间气质先定下来" index={2} />
+      <section id="design" className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(248,244,239,0.96),rgba(243,237,230,0.88))] p-6 shadow-soft sm:p-8">
+        <SectionHeader
+          eyebrow="设计阶段"
+          title="把空间气质先定下来"
+          index={2}
+          description="平面、立面和氛围图一起收拢成一套更完整的空间判断。"
+        />
 
         <div className="space-y-10">
           {(Object.keys(groupMeta) as DesignGroupKey[]).map((group) => (

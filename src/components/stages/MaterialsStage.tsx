@@ -419,11 +419,12 @@ export function MaterialsStage({
   );
 
   return (
-    <section id="materials" className="rounded-[32px] border border-white/60 bg-[#f8f4ee] p-6 shadow-soft sm:p-8">
+    <section id="materials" className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(248,244,238,0.95),rgba(244,238,230,0.88))] p-6 shadow-soft sm:p-8">
       <SectionHeader
         eyebrow="主材选购"
         title="主材选择与预算结果"
         index={3}
+        description="这一章优先看清预算结果、方案对比和附件证据，再回到每一类材料的细节。"
       />
 
       <BudgetSummary
