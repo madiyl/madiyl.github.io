@@ -19,13 +19,15 @@ export type TileQuoteItem = {
 
 export type MaterialQuoteRole = "selected" | "comparison";
 
-export type ApplianceCategory =
+export type BuiltInApplianceCategory =
   | "电视"
   | "冰箱"
   | "洗烘套装"
   | "洗碗机"
   | "烟灶套装"
   | "燃气热水器";
+
+export type ApplianceCategory = BuiltInApplianceCategory | string;
 
 export type ApplianceChannel = "电商平台" | "线下门店" | "团购";
 
@@ -42,6 +44,33 @@ export type ConstructionPhase =
   | "成品安装";
 
 export type ConstructionStatus = "未开始" | "进行中" | "已完成" | "待复查";
+
+export type ConstructionRoadmapStageKey =
+  | "prep"
+  | "water"
+  | "tile"
+  | "wood"
+  | "paint"
+  | "install"
+  | "furniture";
+
+export type ConstructionStageTask = {
+  id: string;
+  title: string;
+  status: ConstructionStatus;
+  schedule: string;
+  progress: string;
+  detail: string;
+  risk: string;
+};
+
+export type ConstructionRoadmapStage = {
+  id: ConstructionRoadmapStageKey;
+  label: string;
+  schedule: string;
+  estimate: string;
+  tasks: ConstructionStageTask[];
+};
 
 export type SoftCategory =
   | "沙发"
@@ -138,6 +167,6 @@ export type RenovationPageData = {
   design: Record<DesignGroupKey, DesignAsset[]>;
   materials: MaterialItem[];
   appliances: ApplianceItem[];
-  construction: ConstructionTask[];
+  construction: ConstructionRoadmapStage[];
   softFurnishings: SoftFurnishingItem[];
 };

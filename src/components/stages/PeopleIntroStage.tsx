@@ -252,7 +252,7 @@ export function PeopleIntroStage({
                 ) : null}
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {items.map((person, index) => {
+                  {items.map((person) => {
                     const isHub = meta.hubPersonId === person.id;
                     const relationLabel = getRelationLabel(person);
 

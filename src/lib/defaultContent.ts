@@ -2,7 +2,12 @@ import type {
   ApplianceCategory,
   ApplianceChannel,
   ApplianceStatus,
+  BuiltInApplianceCategory,
   CollaboratorGroup,
+  ConstructionRoadmapStage,
+  ConstructionRoadmapStageKey,
+  ConstructionTask,
+  ConstructionStageTask,
   ConstructionPhase,
   MaterialCategory,
   MaterialItem,
@@ -50,7 +55,7 @@ const defaultTileQuotes: TileQuoteItem[] = [
   },
 ];
 
-const applianceCategories: ApplianceCategory[] = [
+const applianceCategories: BuiltInApplianceCategory[] = [
   "电视",
   "冰箱",
   "洗烘套装",
@@ -65,15 +70,99 @@ const legacyApplianceCategoryMap: Partial<Record<string, ApplianceCategory>> = {
   油烟机: "烟灶套装",
 };
 
-const constructionPhases: ConstructionPhase[] = [
-  "成品保护",
-  "拆除",
-  "新建",
-  "地面",
-  "顶面",
-  "墙面",
-  "水电",
-  "成品安装",
+const constructionStagePhaseMap: Record<
+  Exclude<ConstructionRoadmapStageKey, "furniture">,
+  ConstructionPhase[]
+> = {
+  prep: ["成品保护", "拆除", "新建"],
+  water: ["水电"],
+  tile: ["地面"],
+  wood: ["顶面"],
+  paint: ["墙面"],
+  install: ["成品安装"],
+};
+
+const constructionRoadmapDefaults: Array<{
+  id: ConstructionRoadmapStageKey;
+  label: string;
+  schedule: string;
+  estimate: string;
+  tasks: Array<Omit<ConstructionStageTask, "id">>;
+}> = [
+  {
+    id: "prep",
+    label: "前期工程",
+    schedule: "待排期",
+    estimate: "8天",
+    tasks: [
+      { title: "成品保护", status: "已完成", schedule: "2026-08", progress: "现场确认完成，已记录照片。", detail: "入场当天完成门套、电梯、地砖防护。", risk: "暂无明显风险，持续跟踪。" },
+      { title: "拆除交底", status: "已完成", schedule: "2026-08", progress: "拆改范围已确认。", detail: "拆除交底完成，现场边界清晰。", risk: "暂无明显风险，持续跟踪。" },
+      { title: "新建放样", status: "进行中", schedule: "2026-08", progress: "砌墙定位已放样，待复核尺寸。", detail: "需对照柜体和风口位置复核。", risk: "需同步确认空调风口和柜体碰撞。" },
+    ],
+  },
+  {
+    id: "water",
+    label: "水电阶段",
+    schedule: "待排期",
+    estimate: "15天",
+    tasks: [
+      { title: "水电交底", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "水电施工", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "水电验收", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+    ],
+  },
+  {
+    id: "tile",
+    label: "泥工阶段",
+    schedule: "待排期",
+    estimate: "29天",
+    tasks: [
+      { title: "防水找平", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "铺贴施工", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "泥工验收", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+    ],
+  },
+  {
+    id: "wood",
+    label: "木工阶段",
+    schedule: "待排期",
+    estimate: "10天",
+    tasks: [
+      { title: "吊顶基层", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "柜体复尺", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+    ],
+  },
+  {
+    id: "paint",
+    label: "腻子墙漆",
+    schedule: "待排期",
+    estimate: "21天",
+    tasks: [
+      { title: "墙顶找平", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "打磨刷漆", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+    ],
+  },
+  {
+    id: "install",
+    label: "安装收尾",
+    schedule: "待排期",
+    estimate: "20天",
+    tasks: [
+      { title: "开关灯具安装", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "成品安装", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "收尾复查", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+    ],
+  },
+  {
+    id: "furniture",
+    label: "家具入住",
+    schedule: "待排期",
+    estimate: "待定",
+    tasks: [
+      { title: "家具进场", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+      { title: "开荒保洁", status: "未开始", schedule: "", progress: "", detail: "", risk: "" },
+    ],
+  },
 ];
 
 const softCategories: SoftCategory[] = [
@@ -255,17 +344,15 @@ export const defaultContent: RenovationPageData = {
     status: index === 0 ? "已购" : "选品",
     note: index === 0 ? "优先考虑观影和护眼表现。" : "保留给后续补充。",
   })),
-  construction: constructionPhases.map((phase, index) => ({
-    id: `construction-${index + 1}`,
-    phase,
-    status: index < 2 ? "已完成" : index === 2 ? "进行中" : "未开始",
-    plannedAt: index < 3 ? "2026-08" : "",
-    progress: index < 2 ? "现场确认完成，已记录照片。" : index === 2 ? "砌墙定位已放样，待复核尺寸。" : "等待前置工序完成后启动。",
-    detail:
-      index === 0
-        ? "入场当天完成门套、电梯、地砖防护，确保后续运输和施工安全。"
-        : "记录工序节点、验收重点和现场照片编号。",
-    risk: index === 2 ? "需同步确认空调风口和柜体碰撞。" : "暂无明显风险，持续跟踪。",
+  construction: constructionRoadmapDefaults.map((stage, stageIndex) => ({
+    id: stage.id,
+    label: stage.label,
+    schedule: stage.schedule,
+    estimate: stage.estimate,
+    tasks: stage.tasks.map((task, taskIndex) => ({
+      id: `construction-task-${stageIndex + 1}-${taskIndex + 1}`,
+      ...task,
+    })),
   })),
   softFurnishings: softCategories.map((category, index) => ({
     id: `soft-${index + 1}`,
@@ -332,6 +419,79 @@ export function mergeWithDefaultContent(
     materialRoleCounters.set(item.category, nextIndex + 1);
 
     return nextIndex === 0 ? "selected" : "comparison";
+  };
+
+  const mergeConstructionStages = (
+    incoming?: Partial<RenovationPageData>["construction"],
+  ) => {
+    if (!incoming?.length) return base.construction;
+
+    const firstItem = incoming[0] as Record<string, unknown>;
+    const isLegacyConstructionTask = "phase" in firstItem;
+
+    if (isLegacyConstructionTask) {
+      const legacyTasks = incoming as unknown as ConstructionTask[];
+      const stageTaskMap = new Map<ConstructionRoadmapStageKey, ConstructionStageTask[]>();
+
+      legacyTasks.forEach((task) => {
+        const stageId = (
+          Object.entries(constructionStagePhaseMap).find(([, phases]) =>
+            phases.includes(task.phase),
+          )?.[0] ?? "furniture"
+        ) as ConstructionRoadmapStageKey;
+
+        if (!stageTaskMap.has(stageId)) {
+          stageTaskMap.set(stageId, []);
+        }
+
+        stageTaskMap.get(stageId)?.push({
+          id: task.id,
+          title: task.phase,
+          status: task.status,
+          schedule: task.plannedAt,
+          progress: task.progress,
+          detail: task.detail,
+          risk: task.risk,
+        });
+      });
+
+      return base.construction.map((stage) => {
+        const migratedTasks = stageTaskMap.get(stage.id);
+        return {
+          ...stage,
+          tasks: migratedTasks?.length
+            ? migratedTasks
+            : stage.tasks,
+          schedule:
+            migratedTasks?.find((task) => task.schedule.trim())?.schedule ??
+            stage.schedule,
+        };
+      });
+    }
+
+    const incomingStages = incoming as unknown as ConstructionRoadmapStage[];
+    const incomingStageMap = new Map(incomingStages.map((stage) => [stage.id, stage]));
+
+    return base.construction.map((stage) => {
+      const matched = incomingStageMap.get(stage.id);
+      return matched
+        ? {
+            ...stage,
+            ...matched,
+            tasks: Array.isArray(matched.tasks)
+              ? matched.tasks.map((task) => ({
+                  id: task.id,
+                  title: task.title ?? "",
+                  status: task.status ?? "未开始",
+                  schedule: task.schedule ?? "",
+                  progress: task.progress ?? "",
+                  detail: task.detail ?? "",
+                  risk: task.risk ?? "",
+                }))
+              : stage.tasks,
+          }
+        : stage;
+    });
   };
 
   return {
@@ -414,9 +574,7 @@ export function mergeWithDefaultContent(
             : "选品",
         }))
       : base.appliances,
-    construction: partial.construction?.length
-      ? partial.construction
-      : base.construction,
+    construction: mergeConstructionStages(partial.construction),
     softFurnishings: partial.softFurnishings?.length
       ? partial.softFurnishings.map((item) => ({
           ...item,
