@@ -248,10 +248,6 @@ export function PeopleIntroStage({
               </div>
 
               <div className="relative">
-                {items.length > 1 ? (
-                  <div className="pointer-events-none absolute bottom-5 left-[26px] top-5 w-px bg-[linear-gradient(180deg,rgba(160,139,118,0.08),rgba(160,139,118,0.42),rgba(160,139,118,0.08))] xl:hidden" />
-                ) : null}
-
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   {items.map((person) => {
                     const isHub = meta.hubPersonId === person.id;

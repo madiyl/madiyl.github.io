@@ -29,18 +29,17 @@ npm run dev
 
 ## 环境变量
 
-复制 `.env.example` 为 `.env`，并填写：
+复制 `.env.example` 为 `.env.local`，并填写：
 
 ```bash
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
-EDIT_PASSWORD=
 ```
 
 说明：
 
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` 用于前端读取内容和调用 Edge Function
-- `EDIT_PASSWORD` 用于 Supabase Edge Function 中校验编辑门禁
+- 本地开发优先使用 `.env.local`，避免把本机配置误放进其他环境文件
 
 ## Supabase 初始化
 
