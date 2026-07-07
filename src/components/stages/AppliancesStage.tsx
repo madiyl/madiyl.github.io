@@ -11,7 +11,7 @@ import type {
   ApplianceStatus,
   BuiltInApplianceCategory,
 } from "@/types/renovation";
-import { createId } from "@/utils/format";
+import { createId, formatCurrency } from "@/utils/format";
 import { loadApplianceImages } from "@/utils/applianceImages";
 import { getLinkDisplayPrefix } from "@/utils/url";
 
@@ -32,6 +32,49 @@ const categories: BuiltInApplianceCategory[] = [
 
 const channelOptions: ApplianceChannel[] = ["电商平台", "线下门店", "团购"];
 const statusOptions: ApplianceStatus[] = ["选品", "加购", "已购"];
+
+function getApplianceStatusClass(status: ApplianceStatus) {
+  switch (status) {
+    case "已购":
+      return "bg-[#e7efe4] text-[#617255]";
+    case "加购":
+      return "bg-[#efe4d6] text-[#8a6746]";
+    default:
+      return "bg-[#ece8e1] text-[#6f675e]";
+  }
+}
+
+function getApplianceBrowseSummary(item: ApplianceItem) {
+  const note = item.note.trim();
+  if (note) {
+    return note;
+  }
+
+  switch (item.category) {
+    case "电视":
+      return "先把尺寸、观看距离和安装条件放在一起看。";
+    case "冰箱":
+      return "重点看容量分区、开门方向和嵌入边界。";
+    case "洗烘套装":
+      return "把容量、排水位置和叠放尺寸顺一遍。";
+    case "洗碗机":
+      return "先看容量、开门方式和橱柜预留关系。";
+    case "烟灶套装":
+      return "把吸力、火力和开孔边界放在一起判断。";
+    case "燃气热水器":
+      return "重点看升数、安装位置和排烟条件。";
+    default:
+      return "把型号、价格、渠道和购买节点放在一起看。";
+  }
+}
+
+function getAppliancePriceDelta(actualPrice: number, budget: number) {
+  const delta = actualPrice - budget;
+
+  if (delta === 0) return formatCurrency(0);
+  if (delta > 0) return formatCurrency(delta);
+  return `-${formatCurrency(Math.abs(delta))}`;
+}
 
 type SelectFieldProps<T extends string> = {
   label: string;
@@ -159,6 +202,129 @@ export function AppliancesStage({
     }));
   }, [appliances, imageMap, previewCategory]);
 
+  const renderBrowsePriceStrip = (item: ApplianceItem) => (
+    <div className="overflow-hidden rounded-[24px] border border-[#e8dccd] bg-[linear-gradient(180deg,rgba(252,248,243,0.98),rgba(247,240,231,0.96))]">
+      <div className="grid sm:grid-cols-3">
+        {[
+          { label: "预算", value: formatCurrency(item.budget) },
+          { label: "实付", value: formatCurrency(item.actualPrice) },
+          { label: "差额", value: getAppliancePriceDelta(item.actualPrice, item.budget) },
+        ].map((stat, index) => (
+          <div
+            key={stat.label}
+            className={`px-4 py-4 sm:px-5 sm:py-5 ${
+              index === 0 ? "" : "border-t border-[#e8dccd] sm:border-l sm:border-t-0"
+            }`}
+          >
+            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9b8a76]">
+              {stat.label}
+            </div>
+            <div className="mt-2 text-[1.02rem] font-semibold tracking-[-0.02em] text-ink sm:text-[1.08rem]">
+              {stat.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderBrowseCover = (item: ApplianceItem, categoryLabel: string) => {
+    const coverImage = imageMap[item.id]?.[0] ?? "";
+    const imageCount = imageMap[item.id]?.length ?? 0;
+
+    if (coverImage) {
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            setPreviewCategory(item.category);
+            setPreviewIndex(0);
+          }}
+          className="group relative block aspect-[16/10] w-full overflow-hidden rounded-[24px] border border-white/70 bg-[#f6efe6] text-left shadow-soft"
+        >
+          <img
+            src={coverImage}
+            alt={`${categoryLabel} 预览首图`}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          />
+          <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(28,22,18,0),rgba(28,22,18,0.72))] px-4 pb-4 pt-10">
+            <div className="flex items-center justify-between gap-3">
+              <span className="rounded-full bg-white/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+                预览图集
+              </span>
+              <span className="text-xs font-medium text-white/90">共 {imageCount} 张</span>
+            </div>
+          </div>
+        </button>
+      );
+    }
+
+    return (
+      <div className="flex aspect-[16/10] items-end rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,#f4ede4,#ede5da)] p-4 shadow-soft">
+        <div className="space-y-2">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9b8a76]">
+            Preview
+          </div>
+          <div className="text-sm leading-6 text-[#6f6154]">暂未添加预览图</div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderBrowseLinkRow = (item: ApplianceItem) => (
+    <div className="flex min-h-[2.85rem] items-center justify-between gap-3 rounded-[20px] border border-[#e9dfd2] bg-[#f8f2ea] px-4 py-3">
+      <div className="min-w-0 space-y-1">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a8771]">
+          商品链接
+        </div>
+        <div className="truncate text-sm font-medium text-ink">
+          {item.productUrl ? getLinkDisplayPrefix(item.productUrl) : "暂无链接"}
+        </div>
+      </div>
+      {item.productUrl ? (
+        <a
+          href={item.productUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex shrink-0 items-center rounded-full border border-[#e0d4c5] bg-white/80 px-3 py-1.5 text-xs font-medium text-[#6f6154] transition hover:bg-white"
+        >
+          点击跳转
+        </a>
+      ) : null}
+    </div>
+  );
+
+  const renderBrowseCard = (item: ApplianceItem, categoryLabel: string) => (
+    <div className="space-y-5">
+      {renderBrowseCover(item, categoryLabel)}
+
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex rounded-full bg-[#f5ede4] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8f7d69]">
+            {categoryLabel}
+          </span>
+          <span
+            className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold ${getApplianceStatusClass(
+              item.status,
+            )}`}
+          >
+            {item.status}
+          </span>
+        </div>
+
+        <div className="text-[1.08rem] font-semibold tracking-[-0.02em] text-ink">
+          {item.brandModel.trim() || `${categoryLabel}待补充型号`}
+        </div>
+
+        <div className="text-sm leading-7 text-[#6f6256]">{getApplianceBrowseSummary(item)}</div>
+      </div>
+
+      {renderBrowsePriceStrip(item)}
+
+      {renderBrowseLinkRow(item)}
+    </div>
+  );
+
   return (
     <section id="appliances" className="rounded-[34px] border border-[rgba(255,255,255,0.74)] bg-[linear-gradient(180deg,rgba(244,239,231,0.95),rgba(240,233,224,0.88))] p-6 shadow-soft sm:p-8">
       <SectionHeader
@@ -215,105 +381,45 @@ export function AppliancesStage({
               key={category}
               className="rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-soft"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1 space-y-3">
-                  <h3 className="text-lg font-semibold text-ink">{category}</h3>
-
-                  {item ? (
-                    <div className="space-y-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                        品牌型号
-                      </div>
-                      {editMode ? (
-                        <input
-                          value={item.brandModel}
-                          onChange={(event) =>
-                            updateItem(item.id, "brandModel", event.target.value)
-                          }
-                          placeholder="例如：某品牌 85 寸电视"
-                          className="w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-sm leading-7 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
-                        />
-                      ) : (
-                        <div className="min-h-[1.75rem] text-base leading-7 text-[#51453a]">
-                          {item.brandModel || "待填写"}
-                        </div>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
-
-                {!item && editMode ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onChange([
-                        ...appliances,
-                        {
-                          id: createId("appliance"),
-                          category,
-                          brandModel: "",
-                          channel: "电商平台",
-                          productUrl: "",
-                          imageDir: "",
-                          budget: 0,
-                          actualPrice: 0,
-                          status: "选品",
-                          note: "",
-                        },
-                      ])
-                    }
-                    className="rounded-full border border-line px-4 py-2 text-sm font-medium text-ink transition hover:bg-white"
-                  >
-                    新增条目
-                  </button>
-                ) : null}
-
-                {item && (imageMap[item.id]?.[0] ?? "") ? (
-                  <div className="shrink-0 space-y-2 text-right">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPreviewCategory(item.category);
-                        setPreviewIndex(0);
-                      }}
-                      className="group relative h-24 w-24 overflow-hidden rounded-[22px] border border-white/70 bg-[#f6efe6] shadow-soft sm:h-28 sm:w-28"
-                    >
-                      <img
-                        src={imageMap[item.id]?.[0]}
-                        alt={`${item.category} 预览首图`}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                      />
-                      <span className="absolute bottom-2 right-2 rounded-full bg-[#2f261f]/68 px-2 py-1 text-[10px] font-medium text-white">
-                        放大
-                      </span>
-                    </button>
-                    <div className="text-xs font-medium text-[#8f7d69]">
-                      共 {imageMap[item.id].length} 张预览图
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
               {item ? (
-                <div className="mt-4 space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <SelectField
-                      label="购买渠道"
-                      value={item.channel}
-                      options={channelOptions}
-                      editMode={editMode}
-                      onChange={(value) => updateItem(item.id, "channel", value)}
-                    />
-                    <SelectField
-                      label="状态"
-                      value={item.status}
-                      options={statusOptions}
-                      editMode={editMode}
-                      onChange={(value) => updateItem(item.id, "status", value)}
-                    />
-                  </div>
-                  {editMode ? (
-                    <>
+                editMode ? (
+                  <>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1 space-y-3">
+                        <h3 className="text-lg font-semibold text-ink">{category}</h3>
+                        <div className="space-y-2">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
+                            品牌型号
+                          </div>
+                          <input
+                            value={item.brandModel}
+                            onChange={(event) =>
+                              updateItem(item.id, "brandModel", event.target.value)
+                            }
+                            placeholder="例如：某品牌 85 寸电视"
+                            className="w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-sm leading-7 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <SelectField
+                          label="购买渠道"
+                          value={item.channel}
+                          options={channelOptions}
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "channel", value)}
+                        />
+                        <SelectField
+                          label="状态"
+                          value={item.status}
+                          options={statusOptions}
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "status", value)}
+                        />
+                      </div>
                       <EditableField
                         label="商品链接"
                         value={item.productUrl}
@@ -328,69 +434,67 @@ export function AppliancesStage({
                         editMode={editMode}
                         onChange={(value) => updateItem(item.id, "imageDir", value)}
                       />
-                    </>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                        商品链接
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <EditableField
+                          label="预算"
+                          value={item.budget}
+                          placeholder="0"
+                          type="number"
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "budget", value)}
+                        />
+                        <EditableField
+                          label="成交价"
+                          value={item.actualPrice}
+                          placeholder="0"
+                          type="number"
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "actualPrice", value)}
+                        />
                       </div>
-                      <div className="flex min-h-[2.75rem] items-center justify-between gap-3 rounded-[20px] border border-white/70 bg-[#f8f3ec] px-4 py-2">
-                        <div className="min-w-0 text-sm text-[#6f6154]">
-                          {item.productUrl ? (
-                            <span className="truncate font-medium">
-                              {getLinkDisplayPrefix(item.productUrl)}
-                            </span>
-                          ) : (
-                            <span className="text-[#8b7966]">暂无链接</span>
-                          )}
-                        </div>
-                        {item.productUrl ? (
-                          <a
-                            href={item.productUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex shrink-0 items-center rounded-full border border-line/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#6f6154] transition hover:bg-white"
-                          >
-                            点击跳转
-                          </a>
-                        ) : null}
-                      </div>
+                      <PriceBadge budget={item.budget} actualPrice={item.actualPrice} />
+                      {editMode || item.note.trim() ? (
+                        <EditableField
+                          label="备注"
+                          value={item.note}
+                          placeholder="记录赠品、配送、安装条件或取舍原因"
+                          editMode={editMode}
+                          multiline
+                          onChange={(value) => updateItem(item.id, "note", value)}
+                        />
+                      ) : null}
                     </div>
-                  )}
-                  {editMode ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <EditableField
-                        label="预算"
-                        value={item.budget}
-                        placeholder="0"
-                        type="number"
-                        editMode={editMode}
-                        onChange={(value) => updateItem(item.id, "budget", value)}
-                      />
-                      <EditableField
-                        label="成交价"
-                        value={item.actualPrice}
-                        placeholder="0"
-                        type="number"
-                        editMode={editMode}
-                        onChange={(value) => updateItem(item.id, "actualPrice", value)}
-                      />
-                    </div>
-                  ) : null}
-                  <PriceBadge budget={item.budget} actualPrice={item.actualPrice} />
-                  {editMode || item.note.trim() ? (
-                    <EditableField
-                      label="备注"
-                      value={item.note}
-                      placeholder="记录赠品、配送、安装条件或取舍原因"
-                      editMode={editMode}
-                      multiline
-                      onChange={(value) => updateItem(item.id, "note", value)}
-                    />
-                  ) : null}
-                </div>
+                  </>
+                ) : (
+                  renderBrowseCard(item, category)
+                )
               ) : (
-                <div className="mt-4 rounded-[24px] bg-[#f7f1ea] px-4 py-5 text-sm leading-7 text-[#8b7966]">
+                <div className="rounded-[24px] bg-[#f7f1ea] px-4 py-5 text-sm leading-7 text-[#8b7966]">
+                  {editMode ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onChange([
+                          ...appliances,
+                          {
+                            id: createId("appliance"),
+                            category,
+                            brandModel: "",
+                            channel: "电商平台",
+                            productUrl: "",
+                            imageDir: "",
+                            budget: 0,
+                            actualPrice: 0,
+                            status: "选品",
+                            note: "",
+                          },
+                        ])
+                      }
+                      className="mb-4 rounded-full border border-line bg-white/70 px-4 py-2 text-sm font-medium text-ink transition hover:bg-white"
+                    >
+                      新增条目
+                    </button>
+                  ) : null}
                   暂未填写，可在编辑模式中补充这一类电器的品牌型号与价格信息。
                 </div>
               )}
@@ -414,100 +518,61 @@ export function AppliancesStage({
                 key={item.id}
                 className="rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-soft"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1 space-y-3">
-                    {editMode ? (
-                      <EditableField
-                        label="电器品类"
-                        value={item.category}
-                        placeholder="例如：投影仪"
-                        editMode={editMode}
-                        onChange={(value) => updateItem(item.id, "category", value)}
-                      />
-                    ) : (
-                      <h3 className="text-lg font-semibold text-ink">
-                        {item.category.trim() || "待命名电器"}
-                      </h3>
-                    )}
-
-                    <div className="space-y-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                        品牌型号
-                      </div>
-                      {editMode ? (
-                        <input
-                          value={item.brandModel}
-                          onChange={(event) =>
-                            updateItem(item.id, "brandModel", event.target.value)
-                          }
-                          placeholder="例如：某品牌型号"
-                          className="w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-sm leading-7 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+                {editMode ? (
+                  <>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1 space-y-3">
+                        <EditableField
+                          label="电器品类"
+                          value={item.category}
+                          placeholder="例如：投影仪"
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "category", value)}
                         />
-                      ) : (
-                        <div className="min-h-[1.75rem] text-base leading-7 text-[#51453a]">
-                          {item.brandModel || "待填写"}
+
+                        <div className="space-y-2">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
+                            品牌型号
+                          </div>
+                          <input
+                            value={item.brandModel}
+                            onChange={(event) =>
+                              updateItem(item.id, "brandModel", event.target.value)
+                            }
+                            placeholder="例如：某品牌型号"
+                            className="w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-sm leading-7 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+                          />
                         </div>
-                      )}
-                    </div>
-                  </div>
+                      </div>
 
-                  <div className="flex shrink-0 flex-col items-end gap-3">
-                    {editMode ? (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        className="rounded-full border border-line px-3 py-1.5 text-xs font-medium text-[#6f6154] transition hover:bg-white"
-                      >
-                        删除条目
-                      </button>
-                    ) : null}
-
-                    {(imageMap[item.id]?.[0] ?? "") ? (
-                      <div className="space-y-2 text-right">
+                      <div className="flex shrink-0 flex-col items-end gap-3">
                         <button
                           type="button"
-                          onClick={() => {
-                            setPreviewCategory(item.category);
-                            setPreviewIndex(0);
-                          }}
-                          className="group relative h-24 w-24 overflow-hidden rounded-[22px] border border-white/70 bg-[#f6efe6] shadow-soft sm:h-28 sm:w-28"
+                          onClick={() => removeItem(item.id)}
+                          className="rounded-full border border-line px-3 py-1.5 text-xs font-medium text-[#6f6154] transition hover:bg-white"
                         >
-                          <img
-                            src={imageMap[item.id]?.[0]}
-                            alt={`${item.category || "自定义电器"} 预览首图`}
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                          />
-                          <span className="absolute bottom-2 right-2 rounded-full bg-[#2f261f]/68 px-2 py-1 text-[10px] font-medium text-white">
-                            放大
-                          </span>
+                          删除条目
                         </button>
-                        <div className="text-xs font-medium text-[#8f7d69]">
-                          共 {imageMap[item.id]?.length ?? 0} 张预览图
-                        </div>
                       </div>
-                    ) : null}
-                  </div>
-                </div>
+                    </div>
 
-                <div className="mt-4 space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <SelectField
-                      label="购买渠道"
-                      value={item.channel}
-                      options={channelOptions}
-                      editMode={editMode}
-                      onChange={(value) => updateItem(item.id, "channel", value)}
-                    />
-                    <SelectField
-                      label="状态"
-                      value={item.status}
-                      options={statusOptions}
-                      editMode={editMode}
-                      onChange={(value) => updateItem(item.id, "status", value)}
-                    />
-                  </div>
-                  {editMode ? (
-                    <>
+                    <div className="mt-4 space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <SelectField
+                          label="购买渠道"
+                          value={item.channel}
+                          options={channelOptions}
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "channel", value)}
+                        />
+                        <SelectField
+                          label="状态"
+                          value={item.status}
+                          options={statusOptions}
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "status", value)}
+                        />
+                      </div>
                       <EditableField
                         label="商品链接"
                         value={item.productUrl}
@@ -522,67 +587,40 @@ export function AppliancesStage({
                         editMode={editMode}
                         onChange={(value) => updateItem(item.id, "imageDir", value)}
                       />
-                    </>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                        商品链接
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <EditableField
+                          label="预算"
+                          value={item.budget}
+                          placeholder="0"
+                          type="number"
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "budget", value)}
+                        />
+                        <EditableField
+                          label="成交价"
+                          value={item.actualPrice}
+                          placeholder="0"
+                          type="number"
+                          editMode={editMode}
+                          onChange={(value) => updateItem(item.id, "actualPrice", value)}
+                        />
                       </div>
-                      <div className="flex min-h-[2.75rem] items-center justify-between gap-3 rounded-[20px] border border-white/70 bg-[#f8f3ec] px-4 py-2">
-                        <div className="min-w-0 text-sm text-[#6f6154]">
-                          {item.productUrl ? (
-                            <span className="truncate font-medium">
-                              {getLinkDisplayPrefix(item.productUrl)}
-                            </span>
-                          ) : (
-                            <span className="text-[#8b7966]">暂无链接</span>
-                          )}
-                        </div>
-                        {item.productUrl ? (
-                          <a
-                            href={item.productUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex shrink-0 items-center rounded-full border border-line/80 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#6f6154] transition hover:bg-white"
-                          >
-                            点击跳转
-                          </a>
-                        ) : null}
-                      </div>
+                      <PriceBadge budget={item.budget} actualPrice={item.actualPrice} />
+                      {editMode || item.note.trim() ? (
+                        <EditableField
+                          label="备注"
+                          value={item.note}
+                          placeholder="记录赠品、配送、安装条件或取舍原因"
+                          editMode={editMode}
+                          multiline
+                          onChange={(value) => updateItem(item.id, "note", value)}
+                        />
+                      ) : null}
                     </div>
-                  )}
-                  {editMode ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <EditableField
-                        label="预算"
-                        value={item.budget}
-                        placeholder="0"
-                        type="number"
-                        editMode={editMode}
-                        onChange={(value) => updateItem(item.id, "budget", value)}
-                      />
-                      <EditableField
-                        label="成交价"
-                        value={item.actualPrice}
-                        placeholder="0"
-                        type="number"
-                        editMode={editMode}
-                        onChange={(value) => updateItem(item.id, "actualPrice", value)}
-                      />
-                    </div>
-                  ) : null}
-                  <PriceBadge budget={item.budget} actualPrice={item.actualPrice} />
-                  {editMode || item.note.trim() ? (
-                    <EditableField
-                      label="备注"
-                      value={item.note}
-                      placeholder="记录赠品、配送、安装条件或取舍原因"
-                      editMode={editMode}
-                      multiline
-                      onChange={(value) => updateItem(item.id, "note", value)}
-                    />
-                  ) : null}
-                </div>
+                  </>
+                ) : (
+                  renderBrowseCard(item, item.category.trim() || "待命名电器")
+                )}
               </article>
             ))}
           </div>
