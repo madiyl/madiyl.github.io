@@ -4,6 +4,8 @@ type LightboxImage = {
   src: string;
   alt: string;
   caption?: string;
+  eyebrow?: string;
+  meta?: string;
 };
 
 type ImageLightboxProps = {
@@ -41,98 +43,108 @@ export function ImageLightbox({
   if (!open || images.length === 0) return null;
 
   const current = images[activeIndex] ?? images[0];
+  const counter = `${activeIndex + 1} / ${images.length}`;
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-[#201914]/82 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] overflow-y-auto bg-[rgba(103,90,76,0.32)] backdrop-blur-[10px]"
       onClick={onClose}
     >
-      <div
-        className="relative w-full max-w-[1320px] rounded-[36px] border border-white/15 bg-[#e8e0d5] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)] sm:p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-5 top-5 z-10 rounded-full bg-white/88 px-4 py-2 text-sm font-medium text-ink shadow-soft transition hover:bg-white"
+      <div className="flex min-h-[100dvh] items-center justify-center px-3 py-4 sm:px-5 sm:py-6">
+        <div
+          className="flex w-full max-w-[1240px] flex-col rounded-[28px] border border-[rgba(255,255,255,0.72)] bg-[linear-gradient(180deg,rgba(248,244,238,0.98),rgba(239,232,223,0.96))] p-3 shadow-[0_28px_80px_rgba(101,83,63,0.18)] sm:rounded-[32px] sm:p-4"
+          onClick={(event) => event.stopPropagation()}
         >
-          关闭
-        </button>
-
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),172px]">
-          <div className="flex min-h-[78vh] flex-col rounded-[30px] bg-[#e3dbcf] p-4 sm:p-5">
-            <div className="flex-1">
-              <div className="relative flex h-full min-h-[64vh] items-center justify-center overflow-hidden rounded-[28px] bg-[#ebe5dc] px-4 py-5 sm:px-6">
-                <img
-                  src={current.src}
-                  alt={current.alt}
-                  className="max-h-[70vh] w-full object-contain"
-                />
-
-                {images.length > 1 ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={onPrev}
-                      className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-base font-medium text-ink shadow-soft transition hover:bg-white sm:left-4 sm:h-11 sm:w-11"
-                      aria-label="上一张"
-                    >
-                      ‹
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onNext}
-                      className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-base font-medium text-ink shadow-soft transition hover:bg-white sm:right-4 sm:h-11 sm:w-11"
-                      aria-label="下一张"
-                    >
-                      ›
-                    </button>
-                  </>
+          <div className="mb-2 flex items-start justify-between gap-3 rounded-[20px] border border-[rgba(150,126,101,0.14)] bg-[rgba(255,255,255,0.52)] px-4 py-2 text-[#3d3127]">
+            <div className="min-w-0 space-y-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {current.eyebrow ? (
+                  <span className="rounded-full bg-[rgba(219,198,174,0.52)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8a6547]">
+                    {current.eyebrow}
+                  </span>
                 ) : null}
+                <span className="rounded-full bg-[rgba(255,255,255,0.72)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#7c6a59]">
+                  {current.meta || counter}
+                </span>
               </div>
-            </div>
 
-            {(current.alt || current.caption) && (
-              <div className="mt-4 rounded-[26px] bg-white/68 px-5 py-4 sm:px-6 sm:py-5">
-                {current.alt ? (
-                  <div className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+              {current.alt ? (
+                <div className="min-w-0">
+                  <div className="truncate text-[1.15rem] font-semibold tracking-[-0.025em] text-[#2b221b] sm:text-[1.22rem]">
                     {current.alt}
                   </div>
-                ) : null}
-                {current.caption ? (
-                  <div className="mt-2 text-sm leading-7 text-[#6b5f54] sm:text-base">
-                    {current.caption}
-                  </div>
-                ) : null}
-              </div>
-            )}
+                </div>
+              ) : null}
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="shrink-0 rounded-full border border-[rgba(150,126,101,0.14)] bg-[rgba(255,255,255,0.72)] px-3.5 py-1.5 text-[12px] font-medium text-[#4b3b2f] transition hover:bg-white"
+            >
+              关闭
+            </button>
           </div>
 
-          <div className="space-y-3 rounded-[28px] bg-[#e3dbcf] p-3 sm:p-4">
-            <div className="px-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#8f7d69]">
-              缩略图
+          <div className="relative h-[min(62dvh,640px)] min-h-[380px] flex-none overflow-hidden rounded-[24px] border border-[rgba(153,129,102,0.12)] bg-[radial-gradient(circle_at_center,rgba(250,247,242,0.98),rgba(232,224,214,0.92))] sm:h-[min(68dvh,760px)] sm:rounded-[28px]">
+            {images.length > 1 ? (
+              <button
+                type="button"
+                onClick={onPrev}
+                className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(150,126,101,0.12)] bg-[rgba(255,255,255,0.78)] text-lg font-medium text-[#5d4b3d] shadow-[0_6px_18px_rgba(125,99,74,0.12)] transition hover:bg-white sm:left-5 sm:h-11 sm:w-11"
+                aria-label="上一张"
+              >
+                ‹
+              </button>
+            ) : null}
+
+            <div className="absolute inset-0 flex items-center justify-center px-[56px] py-4 sm:px-[72px] sm:py-6">
+              <img
+                src={current.src}
+                alt={current.alt}
+                className="block max-h-full max-w-full h-auto w-auto rounded-[18px] object-contain object-center"
+              />
             </div>
-            <div className="grid max-h-[72vh] grid-cols-3 gap-3 overflow-auto lg:grid-cols-1">
-              {images.map((image, index) => (
-                <button
-                  key={`${image.src}-${index}`}
-                  type="button"
-                  onClick={() => onSelect(index)}
-                  className={`overflow-hidden rounded-[22px] border bg-white/50 transition ${
-                    index === activeIndex
-                      ? "border-accent shadow-soft"
-                      : "border-white/30 opacity-80 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="aspect-[4/3] w-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+
+            {images.length > 1 ? (
+              <button
+                type="button"
+                onClick={onNext}
+                className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[rgba(150,126,101,0.12)] bg-[rgba(255,255,255,0.78)] text-lg font-medium text-[#5d4b3d] shadow-[0_6px_18px_rgba(125,99,74,0.12)] transition hover:bg-white sm:right-5 sm:h-11 sm:w-11"
+                aria-label="下一张"
+              >
+                ›
+              </button>
+            ) : null}
           </div>
+
+          {images.length > 1 ? (
+            <div className="mt-3 rounded-[22px] border border-[rgba(153,129,102,0.12)] bg-[rgba(255,255,255,0.42)] p-3 sm:rounded-[24px] sm:p-4">
+              <div className="mb-3 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a8773]">
+                胶片导航
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {images.map((image, index) => (
+                  <button
+                    key={`${image.src}-${index}`}
+                    type="button"
+                    onClick={() => onSelect(index)}
+                    className={`w-24 shrink-0 overflow-hidden rounded-[18px] border transition sm:w-28 ${
+                      index === activeIndex
+                        ? "border-[#c89a67] bg-white shadow-[0_12px_28px_rgba(124,98,73,0.18)]"
+                        : "border-[rgba(153,129,102,0.12)] bg-white/50 opacity-75 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className="aspect-[4/3] w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
