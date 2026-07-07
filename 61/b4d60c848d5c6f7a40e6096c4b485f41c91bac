@@ -1,0 +1,125 @@
+.trae/documents/数据库连接恢复计划_Supabase前端读取与保存.md
+  s_a8e77c2032af8d::t_a9a15fb335fbf3 1-166 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a4c8fb224e737cd706e5c27","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Range":[1,166]}]}]}
+README.md
+  s_a8e77c2032af8d::t_12b9a51c85c720 32,42 gitai:{"mixed_line_ranges":[],"operations":[{"operation_id":"6a4c907024e737cd706e5c88","tool_type":"agent","tool_id":"apply_patch","line_ranges":[{"Single":32},{"Single":42}]}]}
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "61b4d60c848d5c6f7a40e6096c4b485f41c91bac",
+  "prompts": {},
+  "sessions": {
+    "s_a8e77c2032af8d": {
+      "agent_id": {
+        "tool": "trae",
+        "id": "69d765cdb84a1d986a63c891",
+        "model": "gpt-5.4__dev"
+      },
+      "human_author": "linwei.madiyl <linwei.madiyl@bytedance.com>"
+    }
+  },
+  "attestation_metadata": {
+    ".trae/documents/数据库连接恢复计划_Supabase前端读取与保存.md": [
+      {
+        "hash": "s_a8e77c2032af8d::t_a9a15fb335fbf3",
+        "line_ranges": [
+          {
+            "Range": [
+              1,
+              166
+            ]
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a4c8fb224e737cd706e5c27",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Range": [
+                  1,
+                  166
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "README.md": [
+      {
+        "hash": "s_a8e77c2032af8d::t_12b9a51c85c720",
+        "line_ranges": [
+          {
+            "Single": 32
+          },
+          {
+            "Single": 42
+          }
+        ],
+        "mixed_line_ranges": [],
+        "operations": [
+          {
+            "operation_id": "6a4c907024e737cd706e5c88",
+            "tool_type": "agent",
+            "tool_id": "apply_patch",
+            "line_ranges": [
+              {
+                "Single": 32
+              },
+              {
+                "Single": 42
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "remote_transcripts": {
+    "s_a8e77c2032af8d": {
+      "tool": "trae",
+      "conversation_id": "69d765cdb84a1d986a63c891",
+      "session_id": "69d765cdb84a1d986a63c891",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_a8e77c2032af8d::t_12b9a51c85c720": {
+      "tool": "trae",
+      "conversation_id": "69d765cdb84a1d986a63c891",
+      "session_id": "69d765cdb84a1d986a63c891",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_a8e77c2032af8d::t_89196498515385": {
+      "tool": "trae",
+      "conversation_id": "69d765cdb84a1d986a63c891",
+      "session_id": "69d765cdb84a1d986a63c891",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_a8e77c2032af8d::t_a9a15fb335fbf3": {
+      "tool": "trae",
+      "conversation_id": "69d765cdb84a1d986a63c891",
+      "session_id": "69d765cdb84a1d986a63c891",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_a8e77c2032af8d::t_d31de753721f0a": {
+      "tool": "trae",
+      "conversation_id": "69d765cdb84a1d986a63c891",
+      "session_id": "69d765cdb84a1d986a63c891",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    },
+    "s_a8e77c2032af8d::t_df0c8af81270bc": {
+      "tool": "trae",
+      "conversation_id": "69d765cdb84a1d986a63c891",
+      "session_id": "69d765cdb84a1d986a63c891",
+      "status": "remote_only",
+      "message": "Remote transcript resolution is not implemented yet for TRAE prompts."
+    }
+  }
+}
