@@ -248,103 +248,173 @@ export function PeopleIntroStage({
               </div>
 
               <div className="relative">
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {items.map((person) => {
-                    const isHub = meta.hubPersonId === person.id;
+                    const isHub =
+                      group === "主材商"
+                        ? normalizeRole(person.role) === "施工"
+                        : meta.hubPersonId === person.id;
                     const relationLabel = getRelationLabel(person);
+                    const displayName = person.name.trim() || "待补充联系人";
+                    const displayRole = person.role.trim() || "待补充角色";
 
                     return (
                       <article
                         key={person.id}
-                        className={`relative overflow-hidden rounded-[26px] border bg-white/88 p-4 shadow-soft ${
+                        className={`relative overflow-hidden rounded-[28px] border bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(250,246,241,0.92))] p-5 shadow-soft ${
                           isHub
                             ? "border-white/90 ring-1 ring-white/70"
                             : "border-white/80"
                         }`}
                       >
-                        {person.avatarPath ? (
-                          <ImagePathField
-                            value={person.avatarPath}
-                            alt={person.name || person.role}
-                            editMode={editMode}
-                            onChange={(value) => updatePerson(person.id, "avatarPath", value)}
-                            ratioClassName="aspect-[1/1]"
-                          />
-                        ) : (
-                          <div className="space-y-3">
-                            <div
-                              className={`flex aspect-square items-center justify-center rounded-[24px] border border-white/70 bg-gradient-to-br ${getFallbackTone(person.group)} text-lg font-semibold tracking-[0.18em] text-[#5c4e43] shadow-soft`}
-                            >
-                              {getFallbackInitials(person)}
-                            </div>
-                            {editMode ? (
-                              <label className="block space-y-2">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                                  图片路径
-                                </span>
-                                <input
-                                  value={person.avatarPath}
-                                  onChange={(event) =>
-                                    updatePerson(person.id, "avatarPath", event.target.value)
-                                  }
-                                  placeholder="/uploads/renovation/..."
-                                  className="w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-sm leading-7 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
-                                />
-                              </label>
-                            ) : null}
-                          </div>
-                        )}
-
-                        <div className="mt-4 space-y-3">
-                          <EditableField
-                            label="名称"
-                            value={person.name}
-                            placeholder={editMode ? "例如：Madiyl_" : "待补充联系人"}
-                            editMode={editMode}
-                            onChange={(value) => updatePerson(person.id, "name", value)}
-                            displayClassName="text-lg font-semibold text-ink"
-                          />
-                          {!editMode ? (
-                            <div className="flex flex-wrap items-center gap-2">
-                              {isHub ? (
-                                <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${meta.badgeClassName}`}>
-                                  主节点
-                                </span>
-                              ) : null}
-                              {relationLabel ? (
-                                <span className="inline-flex items-center rounded-full bg-[#f8f3ec] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a6b5c]">
-                                  {relationLabel}
-                                </span>
-                              ) : null}
-                            </div>
-                          ) : null}
-                          {editMode && relationLabel ? (
-                            <div className="rounded-[18px] bg-[#f8f3ec] px-3.5 py-3 text-sm leading-7 text-[#51453a]">
-                              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
-                                协作标签
+                        {editMode ? (
+                          <div className="space-y-4">
+                            <div className="grid gap-4 lg:grid-cols-[116px_minmax(0,1fr)]">
+                              <div className="space-y-3">
+                                {person.avatarPath ? (
+                                  <ImagePathField
+                                    value={person.avatarPath}
+                                    alt={person.name || person.role}
+                                    editMode={editMode}
+                                    onChange={(value: string) =>
+                                      updatePerson(person.id, "avatarPath", value)
+                                    }
+                                    ratioClassName="aspect-[1/1]"
+                                  />
+                                ) : (
+                                  <div className="space-y-3">
+                                    <div
+                                      className={`flex aspect-square items-center justify-center rounded-[26px] border border-white/75 bg-gradient-to-br ${getFallbackTone(person.group)} shadow-soft`}
+                                    >
+                                      <div className="space-y-2 text-center text-[#5c4e43]">
+                                        <div className="text-2xl font-semibold tracking-[0.14em]">
+                                          {getFallbackInitials(person)}
+                                        </div>
+                                        <div className="text-[10px] font-medium uppercase tracking-[0.32em] text-[#8b7a68]">
+                                          Portrait
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <label className="block space-y-2">
+                                      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
+                                        图片路径
+                                      </span>
+                                      <input
+                                        value={person.avatarPath}
+                                        onChange={(event) =>
+                                          updatePerson(person.id, "avatarPath", event.target.value)
+                                        }
+                                        placeholder="/uploads/renovation/..."
+                                        className="w-full rounded-2xl border border-line bg-white/80 px-4 py-3 text-sm leading-7 text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+                                      />
+                                    </label>
+                                  </div>
+                                )}
                               </div>
-                              <div className="mt-1">{isHub ? `主节点 · ${relationLabel}` : relationLabel}</div>
+
+                              <div className="space-y-3">
+                                <EditableField
+                                  label="名称"
+                                  value={person.name}
+                                  placeholder="例如：Madiyl_"
+                                  editMode={editMode}
+                                  onChange={(value: string) => updatePerson(person.id, "name", value)}
+                                  displayClassName="text-lg font-semibold text-ink"
+                                />
+                                {relationLabel ? (
+                                  <div className="rounded-[18px] bg-[#f8f3ec] px-3.5 py-3 text-sm leading-7 text-[#51453a]">
+                                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8f7d69]">
+                                      协作标签
+                                    </div>
+                                    <div className="mt-1">{isHub ? `主节点 · ${relationLabel}` : relationLabel}</div>
+                                  </div>
+                                ) : null}
+                                <EditableField
+                                  label="角色"
+                                  value={person.role}
+                                  placeholder="例如：男主人"
+                                  editMode={editMode}
+                                  onChange={(value: string) => updatePerson(person.id, "role", value)}
+                                  displayClassName="text-sm font-medium text-[#7b6856]"
+                                />
+                              </div>
                             </div>
-                          ) : null}
-                          <EditableField
-                            label="角色"
-                            value={person.role}
-                            placeholder="例如：男主人"
-                            editMode={editMode}
-                            onChange={(value) => updatePerson(person.id, "role", value)}
-                            displayClassName="text-sm font-medium text-[#7b6856]"
-                          />
-                          {editMode || person.note.trim() ? (
+
                             <EditableField
                               label="备注"
                               value={person.note}
                               placeholder="记录这位协作方的分工、沟通方式或一句介绍"
                               editMode={editMode}
                               multiline
-                              onChange={(value) => updatePerson(person.id, "note", value)}
+                              onChange={(value: string) => updatePerson(person.id, "note", value)}
                             />
-                          ) : null}
-                        </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <div className="rounded-[24px] border border-[rgba(163,136,107,0.14)] bg-[linear-gradient(180deg,rgba(252,248,242,0.96),rgba(248,241,232,0.72))] p-3.5">
+                              <div className="flex items-center gap-3">
+                                <div className="w-20 shrink-0">
+                                  {person.avatarPath ? (
+                                    <ImagePathField
+                                      value={person.avatarPath}
+                                      alt={person.name || person.role}
+                                      editMode={false}
+                                      onChange={() => {}}
+                                      ratioClassName="aspect-[1/1]"
+                                      zoomOnHover={false}
+                                    />
+                                  ) : (
+                                    <div
+                                      className={`flex aspect-square items-center justify-center rounded-[26px] border border-white/80 bg-gradient-to-br ${getFallbackTone(person.group)} p-4 shadow-soft`}
+                                    >
+                                      <div className="space-y-2 text-center text-[#5c4e43]">
+                                        <div className="text-[1.45rem] font-semibold tracking-[0.12em]">
+                                          {getFallbackInitials(person)}
+                                        </div>
+                                        <div className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#8b7a68]">
+                                          Portrait
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+                                  <div className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                    <div className="whitespace-nowrap text-[clamp(0.9rem,1.05vw,1.1rem)] font-semibold leading-none tracking-[-0.035em] text-ink">
+                                      {displayName}
+                                    </div>
+                                  </div>
+                                  <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#8f7d69]">
+                                    {displayRole}
+                                  </div>
+                                  <div className="h-px w-10 bg-[rgba(143,125,105,0.18)]" />
+                                </div>
+                              </div>
+                            </div>
+
+                            {(isHub || relationLabel) ? (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {isHub ? (
+                                  <span className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] ${meta.badgeClassName}`}>
+                                    主节点
+                                  </span>
+                                ) : null}
+                                {relationLabel ? (
+                                  <span className="inline-flex items-center rounded-full bg-[#f8f3ec] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a6b5c]">
+                                    {relationLabel}
+                                  </span>
+                                ) : null}
+                              </div>
+                            ) : null}
+
+                            {person.note.trim() ? (
+                              <div className="rounded-[20px] bg-[#f8f2ea] px-4 py-3 text-[13px] leading-6 text-[#67594d]">
+                                {person.note}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
                       </article>
                     );
                   })}
