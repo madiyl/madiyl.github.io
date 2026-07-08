@@ -331,7 +331,7 @@ export function AppliancesStage({
         eyebrow="电器选购"
         title="把型号和购买节点理成清单"
         index={4}
-        description="浏览时先读结论，编辑时再展开型号、渠道、链接和预览图这些更细的购买信息。"
+        description="浏览时先读状态，型号、渠道、链接和预览图"
       />
 
       <BudgetSummary

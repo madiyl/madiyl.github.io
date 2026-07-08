@@ -612,7 +612,7 @@ export function MaterialsStage({
         eyebrow="主材选购"
         title="主材选择与预算结果"
         index={3}
-        description="这一章优先看清预算结果、方案对比和附件证据，再回到每一类材料的细节。"
+        description="这一章优先看清预算、方案对比和附件细节。"
       />
 
       <BudgetSummary

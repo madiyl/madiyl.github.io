@@ -94,9 +94,13 @@ describe("ConstructionStage", () => {
     expect(html).toContain("水电阶段");
     expect(html).toContain("泥工阶段");
     expect(html).toContain("家具入住");
+    expect(html).toContain("施工 roadmap");
+    expect(html).toContain("任务总数");
+    expect(html).toContain("任务数");
     expect(html).toContain("排期");
     expect(html).toContain("估时");
     expect(html).toContain("拆除交底");
+    expect(html).toContain("现场进度");
     expect(html).toContain("进行中");
     expect(html).toContain("已完成");
   });

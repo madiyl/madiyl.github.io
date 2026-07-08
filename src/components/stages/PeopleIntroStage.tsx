@@ -184,7 +184,7 @@ export function PeopleIntroStage({
         eyebrow="人员介绍"
         title="把这次装修里一起协作的人先认识一下"
         index={1}
-        description="这一章更像协作地图：先看角色关系，再看每个人手上的信息和备注。"
+        description="第一章：先看角色关系，再看每个人手上的信息和备注。"
       />
 
       <div className="space-y-6">
